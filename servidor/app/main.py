@@ -91,6 +91,12 @@ def registrar_tablet(r: Registro):
         fila = con.execute("SELECT id FROM tablets WHERE device_id = ?", (r.device_id,)).fetchone()
         if fila:
             return {"tablet_id": fila["id"], "nueva": False}
+        # Si en Ajustes se añadieron tablets que aún no se han conectado, la nueva ocupa el primer hueco
+        hueco = con.execute("SELECT id FROM tablets WHERE device_id LIKE 'pendiente-%' ORDER BY id LIMIT 1").fetchone()
+        if hueco:
+            con.execute("UPDATE tablets SET device_id = ?, modelo = ?, simulada = ? WHERE id = ?",
+                        (r.device_id, r.modelo, int(r.simulada), hueco["id"]))
+            return {"tablet_id": hueco["id"], "nueva": True}
         n = con.execute("SELECT COUNT(*) FROM tablets").fetchone()[0] + 1
         tablet_id = f"T{n:02d}"
         while con.execute("SELECT 1 FROM tablets WHERE id = ?", (tablet_id,)).fetchone():
@@ -99,6 +105,36 @@ def registrar_tablet(r: Registro):
         con.execute("INSERT INTO tablets(id, device_id, modelo, simulada) VALUES(?,?,?,?)",
                     (tablet_id, r.device_id, r.modelo, int(r.simulada)))
         return {"tablet_id": tablet_id, "nueva": True}
+
+
+class Cantidad(BaseModel):
+    total: int = Field(..., ge=0, le=500)
+
+
+@app.put("/api/tablets/cantidad", tags=["Tablets"])
+def fijar_cantidad(c: Cantidad):
+    """
+    Cuántas tablets tiene la escuela (desde Ajustes). Si se añaden, aparecen como "pendientes de conectar"
+    hasta que se instala la app en ellas. Al quitar, solo se borran las pendientes (nunca las que ya enviaron datos).
+    """
+    with conectar() as con:
+        actual = con.execute("SELECT COUNT(*) FROM tablets").fetchone()[0]
+        while actual < c.total:
+            n = actual + 1
+            while con.execute("SELECT 1 FROM tablets WHERE id = ?", (f"T{n:02d}",)).fetchone():
+                n += 1
+            con.execute("INSERT INTO tablets(id, device_id, modelo) VALUES(?,?,?)",
+                        (f"T{n:02d}", f"pendiente-{n}", "Pendiente de conectar"))
+            actual += 1
+        if actual > c.total:
+            pendientes = [f[0] for f in con.execute(
+                "SELECT id FROM tablets WHERE device_id LIKE 'pendiente-%' ORDER BY id DESC")]
+            for tablet_id in pendientes[:actual - c.total]:
+                con.execute("DELETE FROM tablets WHERE id = ?", (tablet_id,))
+                actual -= 1
+        aviso = None if actual == c.total else \
+            f"Quedan {actual} tablets: las que ya han enviado datos no se borran desde aquí."
+        return {"total": actual, "aviso": aviso}
 
 
 @app.post("/api/lecturas", tags=["Tablets"])
@@ -136,7 +172,8 @@ def historial_tablet(tablet_id: str, horas: int = 24):
 def estado_tablets(con) -> list[dict]:
     ahora = datetime.now()
     resultado = []
-    for t in filas(con, "SELECT id, modelo, simulada FROM tablets ORDER BY id"):
+    for t in filas(con, "SELECT id, modelo, simulada, device_id FROM tablets ORDER BY id"):
+        pendiente = t.pop("device_id").startswith("pendiente-")
         ultima = con.execute("SELECT bateria, cargando, temperatura, ts FROM lecturas WHERE tablet_id = ? "
                              "ORDER BY ts DESC LIMIT 1", (t["id"],)).fetchone()
         if ultima:
@@ -146,7 +183,7 @@ def estado_tablets(con) -> list[dict]:
                      estado="sin_datos" if minutos > MINUTOS_SIN_DATOS else "ok")
         else:
             t.update(bateria=None, cargando=False, temperatura=None, ultima_lectura=None,
-                     minutos_desde_lectura=None, estado="sin_datos")
+                     minutos_desde_lectura=None, estado="pendiente" if pendiente else "sin_datos")
         t["simulada"] = bool(t["simulada"])
         resultado.append(t)
     return resultado

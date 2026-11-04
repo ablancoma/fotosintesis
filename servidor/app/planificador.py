@@ -12,7 +12,8 @@ Simula seguido, en franjas de 15 minutos, desde AHORA hasta el último día con 
 Decide:
   1. Qué tablets usa cada clase (las más cargadas; las tablets son compartidas).
   2. Qué tablets enchufar, a qué hora y cuánto tiempo, teniendo en cuenta el sol de cada franja,
-     el consumo del servidor, la batería de la escuela, los enchufes y la potencia del cargador.
+     la batería de la escuela, los enchufes y la potencia del cargador.
+     (El consumo del ordenador servidor es despreciable y no se tiene en cuenta.)
   3. Lo convierte en INSTRUCCIONES para el profesor:
        "07:00 · Enchufa T03, T05, T08 durante 1 h 30 min"
        "08:45 · Reparte 20 tablets para Matemáticas"
@@ -89,7 +90,6 @@ def calcular_plan(tablets: list[dict], clases_por_dia: dict, config: dict, radia
     bat_cap = config.get("bateria_sistema_wh", 0) if usa_bateria else 0
     bat_ef = config.get("eficiencia_bateria", 0.9)
     bat_wh = bat_cap * config.get("bateria_sistema_nivel", 0) / 100
-    servidor_wh_franja = config.get("servidor_w", 0) * MIN_FRANJA / 60
     llegada = config.get("hora_llegada", 7) * 60 // MIN_FRANJA
     salida = config.get("hora_salida", 16) * 60 // MIN_FRANJA
 
@@ -173,13 +173,6 @@ def calcular_plan(tablets: list[dict], clases_por_dia: dict, config: dict, radia
                 for t in clase.tablets:
                     bateria_al_empezar[(clase.id, clase.fecha, t)] = bateria[t]
                     bateria[t] = max(0.0, bateria[t] - clase.gasto_pct)
-
-        # El servidor consume primero
-        if solar >= servidor_wh_franja:
-            solar -= servidor_wh_franja
-        else:
-            bat_wh = max(0.0, bat_wh - (servidor_wh_franja - solar) / bat_ef)
-            solar = 0.0
 
         enchufes = config["n_enchufes"]
         cargadas = set()

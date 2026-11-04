@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fotosíntesis</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+  <link rel="icon" href="icono.svg" type="image/svg+xml">
   <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
     <!-- ================= Barra lateral ================= -->
     <nav class="lateral" aria-label="Secciones">
       <div class="marca">
-        <span class="marca-icono" aria-hidden="true">🌱</span>
+        <img class="marca-icono" src="icono.svg" alt="" width="36" height="36">
         <div>
           <strong>Fotosíntesis</strong>
           <small id="escuela">—</small>
@@ -161,9 +161,8 @@
 
         <div class="pregunta-bloque">
           <h2>📱 Tablets</h2>
-          <p class="pregunta">¿Qué tablets usáis?</p>
-          <div class="opciones" id="a-tablet"></div>
           <ul class="lista-agrupada">
+            <li class="fila"><div><span>¿Cuántas tablets tenéis?</span><small>Las nuevas aparecen en Tablets hasta que se instala la app en ellas</small></div><span class="contador" id="a-n-tablets"></span></li>
             <li class="fila"><div><span>¿Cuántas podéis cargar a la vez?</span><small>Enchufes, regletas o puertos de carga libres</small></div><span class="contador" id="a-enchufes"></span></li>
           </ul>
         </div>
@@ -175,12 +174,6 @@
             <li class="fila"><span>¿A qué hora llega?</span><span class="contador" id="a-llegada"></span></li>
             <li class="fila"><span>¿A qué hora se va?</span><span class="contador" id="a-salida"></span></li>
           </ul>
-        </div>
-
-        <div class="pregunta-bloque">
-          <h2>🖥️ Este ordenador</h2>
-          <p class="pregunta">¿Qué ordenador hace de servidor? Su consumo se descuenta de la energía del sol.</p>
-          <div class="opciones" id="a-ordenador"></div>
         </div>
 
         <details class="pregunta-bloque avanzado">

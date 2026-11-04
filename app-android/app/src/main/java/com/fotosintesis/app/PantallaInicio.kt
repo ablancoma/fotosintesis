@@ -1,5 +1,6 @@
 package com.fotosintesis.app
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,9 +31,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -73,16 +74,15 @@ fun PantallaInicio(alElegir: (modo: String) -> Unit) {
     ) {
         Column(Modifier.widthIn(max = 520.dp)) {
             Spacer(Modifier.height(28.dp))
-            Box(
-                Modifier.size(72.dp).clip(RoundedCornerShape(18.dp))
-                    .background(Brush.verticalGradient(listOf(Color(0xFF3DDC6B), Color(0xFF1F9D4A))))
-                    .align(Alignment.CenterHorizontally),
-                contentAlignment = Alignment.Center
-            ) { Text("🌱", fontSize = 38.sp) }
+            Image(
+                painter = painterResource(R.drawable.ic_fotosintesis),
+                contentDescription = "Logo de Fotosíntesis",
+                modifier = Modifier.size(84.dp).align(Alignment.CenterHorizontally)
+            )
             Spacer(Modifier.height(14.dp))
             Text("Fotosíntesis", fontSize = 34.sp, fontWeight = FontWeight.Bold, color = Colores.Texto,
                 modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-            Text("La escuela que convierte la luz en aprendizaje", fontSize = 15.sp, color = Colores.Texto2,
+            Text("Que la batería no decida cuánto aprendes", fontSize = 15.sp, color = Colores.Texto2,
                 modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
 
             // ---------------- Servidor ----------------

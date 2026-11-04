@@ -1,5 +1,8 @@
 # 🛡️ Guía para defender Fotosíntesis ante el jurado
 
+## Marca
+**Una hoja que se carga como una batería** (ver `marca/README.md`). Lema: **«Que la batería no decida cuánto aprendes»**.
+
 ## La idea en 20 segundos
 > En las escuelas rurales con paneles solares, el problema no es tener tablets: es que **lleguen cargadas a clase**.
 > Fotosíntesis mide la batería de cada tablet, mira el sol de mañana y le dice al profesor
@@ -60,8 +63,9 @@ móvil del profesor) y para Gemini.
 - **Diseño:** lenguaje visual de iOS/macOS (fondo gris de sistema, listas agrupadas, colores de sistema, modo
   oscuro). Las instrucciones son lo más visible: el **siguiente paso** en grande con un botón *Hecho*.
 - **Ajustes pensados para un profesor, no para un técnico:** en vez de pedir vatios y vatios-hora, pregunta
-  «¿cuántos paneles tenéis?», «¿tenéis batería?», «¿qué tablets usáis?» y muestra al momento cuántas tablets
-  se pueden cargar en un día de sol con esa instalación.
+  «¿cuántos paneles tenéis?», «¿tenéis batería?», «¿cuántas tablets tenéis y cuántas podéis cargar a la vez?» y
+  muestra al momento cuántas tablets se pueden cargar en un día de sol con esa instalación. Si se añaden tablets,
+  aparecen en el panel como «pendientes de conectar» hasta que se instala la app en ellas.
 
 ### Base de datos — **SQLite**
 - Un único archivo, sin instalar nada ni necesitar un técnico. Ideal para una escuela.
@@ -98,8 +102,8 @@ móvil del profesor) y para Gemini.
 - **Realista:** solo da instrucciones cuando el profesor está en la escuela (hora de llegada y salida en Ajustes)
   y nunca pide enchufar más tablets que enchufes hay. El fin de semana solo se carga la batería de la escuela.
 - **Horario por días:** cada clase puede ser de un día concreto o repetirse todos los días laborables.
-- En cada franja calcula la energía del panel (previsión × potencia × eficiencia), resta lo que gasta el servidor
-  y la reparte **primero entre las tablets que tienen clase antes**.
+- En cada franja calcula la energía del panel (previsión × potencia × eficiencia) y la reparte **primero entre las
+  tablets que tienen clase antes**. El consumo del ordenador servidor es despreciable y no se cuenta.
 - Respeta cuántos **enchufes** hay y la **potencia del cargador**.
 - Lo que sobra de sol va a la **batería de almacenamiento** (si la escuela tiene); se usa para cargar a primera hora.
 - Para cada clase elige las **tablets más cargadas** (son compartidas).
@@ -122,7 +126,7 @@ El profesor las marca como hechas. No hace falta hardware extra (los enchufes in
 |---|---|
 | ¿Y si no hay wifi en la escuela? | Basta un router barato sin internet. Las tablets guardan las lecturas y las envían cuando hay red. |
 | ¿Y si no hay internet nunca? | Todo funciona: plan, instrucciones, aprendizaje. Solo se pierde Gemini (y con IA local, tampoco). La previsión la trae el profesor con su móvil. |
-| ¿El servidor no gasta energía? | Sí, y lo restamos en el plan. Un ordenador gasta ~30 W; una Raspberry Pi, 5 W. |
+| ¿El servidor no gasta energía? | Muy poca comparada con las tablets, así que no la contamos. En el futuro puede ser una Raspberry Pi (5 W). |
 | ¿Privacidad de los alumnos? | No guardamos ningún dato personal: solo un identificador por tablet y su batería. |
 | ¿Y si el profesor tiene iPhone? | Hoy es Android. La app se puede llevar a iPhone con Compose Multiplatform (mismo lenguaje). |
 | ¿Cuánto cuesta? | El software es gratuito y abierto. El hardware ya existe (tablets de ProFuturo); como mucho, una Raspberry Pi y un router. |

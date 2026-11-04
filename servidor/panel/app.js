@@ -211,14 +211,23 @@ function pintarTablets() {
   const media = conDatos.length ? Math.round(conDatos.reduce((s, t) => s + t.bateria, 0) / conDatos.length) : 0;
   const bajas = conDatos.filter((t) => t.bateria < 30).length;
   const cargando = ts.filter((t) => t.cargando).length;
-  const reales = ts.filter((t) => !t.simulada).length;
-  $("#tablets-sub").textContent = `${ts.length} tablets · ${reales} real${reales === 1 ? "" : "es"} y ${ts.length - reales} simuladas · se actualiza sola`;
+  const pendientes = ts.filter((t) => t.estado === "pendiente").length;
+  const reales = ts.filter((t) => !t.simulada && t.estado !== "pendiente").length;
+  $("#tablets-sub").textContent = `${ts.length} tablets · ${reales} real${reales === 1 ? "" : "es"}, ${ts.length - reales - pendientes} simuladas`
+    + (pendientes ? ` y ${pendientes} pendientes de conectar` : "") + " · se actualiza sola";
   $("#tablets-cifras").innerHTML = `
     <div class="cifra-bloque"><b style="color:${colorBateria(media)}">${media}%</b><span>batería media</span></div>
     <div class="cifra-bloque"><b style="color:var(--rojo)">${bajas}</b><span>por debajo del 30 %</span></div>
     <div class="cifra-bloque"><b style="color:var(--sol)">${cargando}</b><span>cargando ahora</span></div>
-    <div class="cifra-bloque"><b>${ts.length - conDatos.length}</b><span>sin datos recientes</span></div>`;
+    <div class="cifra-bloque"><b>${ts.length - conDatos.length - pendientes}</b><span>sin datos recientes</span></div>`;
   $("#rejilla-tablets").innerHTML = ts.map((t) => {
+    if (t.estado === "pendiente") {
+      return `<div class="tablet pendiente">
+        <header>${esc(t.id)} <small>nueva</small></header>
+        <div class="pila"><span class="pila-icono"></span>—</div>
+        <span class="estado">Esperando conexión: instala la app en esta tablet</span>
+      </div>`;
+    }
     const sin = t.estado !== "ok" || t.bateria == null;
     const b = t.bateria ?? 0;
     return `<div class="tablet ${sin ? "sin-datos" : ""}">
@@ -526,17 +535,6 @@ const NIVELES_BATERIA = [
   { pct: 50, titulo: "A medias", texto: "Lo normal" },
   { pct: 90, titulo: "Llena", texto: "Apenas se usa de noche" },
 ];
-const TIPOS_TABLET = {
-  pequena: { titulo: "Pequeña", texto: "7–8 pulgadas", capacidad_tablet_wh: 15, potencia_cargador_w: 10, emoji: "📱" },
-  mediana: { titulo: "Normal", texto: "10 pulgadas · la más común", capacidad_tablet_wh: 25, potencia_cargador_w: 10, emoji: "📲" },
-  grande: { titulo: "Grande", texto: "11–12 pulgadas", capacidad_tablet_wh: 35, potencia_cargador_w: 15, emoji: "💻" },
-};
-const TIPOS_ORDENADOR = {
-  portatil: { titulo: "Portátil", texto: "Gasta unos 30 W", servidor_w: 30, emoji: "💻" },
-  sobremesa: { titulo: "Sobremesa", texto: "Gasta unos 60 W", servidor_w: 60, emoji: "🖥️" },
-  raspberry: { titulo: "Raspberry Pi", texto: "Gasta unos 5 W", servidor_w: 5, emoji: "🍓" },
-};
-
 function opcion(grupo, valor, titulo, texto, elegida, emoji = "") {
   return `<button class="opcion ${elegida ? "elegida" : ""}" data-grupo="${grupo}" data-valor="${valor}" aria-pressed="${elegida}">
     ${emoji ? `<span class="opcion-emoji" aria-hidden="true">${emoji}</span>` : ""}
@@ -551,8 +549,9 @@ function contador(clave, valor, unidad, paso, min, max) {
 }
 
 async function cargarAjustes() {
-  const [config, info] = await Promise.all([api("/api/config"), api("/api/info")]);
+  const [config, info, tablets] = await Promise.all([api("/api/config"), api("/api/info"), api("/api/tablets")]);
   estado.config = config;
+  estado.tablets = tablets;
   $("#direccion").textContent = `${info.ip}:${info.puerto}`;
   pintarAjustes();
 }
@@ -577,13 +576,10 @@ function pintarAjustes() {
   $("#a-nivel-bateria").innerHTML = NIVELES_BATERIA.map((n) =>
     opcion("nivel", n.pct, n.titulo, n.texto, c.bateria_sistema_nivel === n.pct)).join("");
 
-  $("#a-tablet").innerHTML = Object.entries(TIPOS_TABLET).map(([k, t]) =>
-    opcion("tablet", k, t.titulo, t.texto, c.tipo_tablet === k, t.emoji)).join("");
+  $("#a-n-tablets").innerHTML = contador("n_tablets", estado.tablets.length, "", 1, 0, 200);
   $("#a-enchufes").innerHTML = contador("n_enchufes", c.n_enchufes, "", 1, 1, 60);
   $("#a-llegada").innerHTML = contador("hora_llegada", c.hora_llegada, ":00", 1, 5, c.hora_salida - 1);
   $("#a-salida").innerHTML = contador("hora_salida", c.hora_salida, ":00", 1, c.hora_llegada + 1, 22);
-  $("#a-ordenador").innerHTML = Object.entries(TIPOS_ORDENADOR).map(([k, t]) =>
-    opcion("ordenador", k, t.titulo, t.texto, c.tipo_ordenador === k, t.emoji)).join("");
   $("#a-reserva").innerHTML = contador("reserva_pct", c.reserva_pct, " %", 5, 5, 50);
 
   pintarResumen();
@@ -591,10 +587,10 @@ function pintarAjustes() {
 
 function pintarResumen() {
   const c = estado.config;
-  // Energía de un día soleado típico (≈ 5,85 kWh/m²) menos lo que gasta el ordenador de día
+  // Energía de un día soleado típico (≈ 5,85 kWh/m²). El consumo del ordenador es despreciable.
   const solDia = 5.85 * c.panel_solar_wp * c.eficiencia_panel;
-  const util = Math.max(0, solDia - c.servidor_w * 10);
-  const cargas = Math.floor(util / c.capacidad_tablet_wh);
+  const cargas = Math.floor(solDia / c.capacidad_tablet_wh);
+  const nTablets = (estado.tablets || []).length;
   const lugar = LUGARES[c.ubicacion]?.nombre || c.pais;
   $("#resumen-instalacion").innerHTML = `
     <div class="resumen-cifra">${cargas}</div>
@@ -602,7 +598,7 @@ function pintarResumen() {
       <strong>tablets cargadas del todo en un día de sol</strong>
       <span>${c.n_paneles} panel${c.n_paneles === 1 ? "" : "es"} de ${c.potencia_panel_w} W (${c.panel_solar_wp} W en total) ·
         ${c.bateria_sistema_activa ? `batería de ${c.bateria_sistema_wh.toLocaleString("es-ES")} Wh` : "sin batería"} ·
-        hasta ${c.n_enchufes} tablets cargando a la vez · profesor de ${c.hora_llegada}:00 a ${c.hora_salida}:00 · ${esc(lugar)}</span>
+        ${nTablets} tablets, hasta ${c.n_enchufes} cargando a la vez · profesor de ${c.hora_llegada}:00 a ${c.hora_salida}:00 · ${esc(lugar)}</span>
     </div>`;
 }
 
@@ -624,12 +620,11 @@ document.addEventListener("click", (e) => {
       case "bateria": guardar({ bateria_sistema_activa: v === "si" }); break;
       case "tamano": guardar({ bateria_sistema_wh: +v }); break;
       case "nivel": guardar({ bateria_sistema_nivel: +v }); break;
-      case "tablet": { const t = TIPOS_TABLET[v]; guardar({ tipo_tablet: v, capacidad_tablet_wh: t.capacidad_tablet_wh, potencia_cargador_w: t.potencia_cargador_w }); break; }
-      case "ordenador": guardar({ tipo_ordenador: v, servidor_w: TIPOS_ORDENADOR[v].servidor_w }); break;
     }
     return;
   }
   const b = e.target.closest("[data-contar]");
+  if (b && b.dataset.contar === "n_tablets") { cambiarNumeroTablets(estado.tablets.length + +b.dataset.d); return; }
   if (b) {
     const clave = b.dataset.contar;
     const nuevo = Math.min(+b.dataset.max, Math.max(+b.dataset.min, estado.config[clave] + +b.dataset.d));
@@ -639,6 +634,16 @@ document.addEventListener("click", (e) => {
     guardar(cambios);
   }
 });
+
+async function cambiarNumeroTablets(total) {
+  if (total < 0) return;
+  try {
+    const r = await api("/api/tablets/cantidad", { method: "PUT", body: { total } });
+    estado.tablets = await api("/api/tablets");
+    pintarAjustes();
+    aviso(r.aviso || (total > 0 ? `Ahora hay ${r.total} tablets. Las nuevas aparecen en Tablets.` : "Guardado"));
+  } catch (e) { aviso("No se pudo cambiar el número de tablets"); }
+}
 
 $("#a-lugar").addEventListener("change", (e) => {
   const l = LUGARES[e.target.value];

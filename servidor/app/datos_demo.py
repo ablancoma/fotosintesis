@@ -25,11 +25,7 @@ CONFIG_INICIAL = {
     # Horas en las que el profesor está en la escuela (solo entonces puede enchufar tablets)
     "hora_llegada": 7,
     "hora_salida": 16,
-    # Consumo del propio servidor (ordenador Ubuntu)
-    "tipo_ordenador": "portatil",     # portatil | sobremesa | raspberry
-    "servidor_w": 30,
     # Tablets y cargadores
-    "tipo_tablet": "mediana",         # pequena | mediana | grande
     "capacidad_tablet_wh": 25,        # batería típica de una tablet de 10" (~7000 mAh)
     "potencia_cargador_w": 10,
     "n_enchufes": 10,                 # cuántas tablets se pueden cargar a la vez

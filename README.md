@@ -1,6 +1,8 @@
-# 🌱 Fotosíntesis — Hack4Edu 2026 · Reto 02 «Aprender sin conexión»
+<img src="marca/logo-horizontal.svg" alt="Fotosíntesis" width="360">
 
-> **La escuela que convierte la luz en aprendizaje.**
+# Hack4Edu 2026 · Reto 02 «Aprender sin conexión»
+
+> **Que la batería no decida cuánto aprendes.**
 > Mide la batería de cada tablet, mira el sol de mañana y le dice al profesor qué enchufar, cuándo y cuánto
 > tiempo, para que las tablets lleguen cargadas a clase. Funciona sin internet.
 
@@ -19,6 +21,7 @@
 | [`servidor/`](servidor/README.md) | **Servidor** en Python + **app de escritorio del profesor** (`servidor/panel/`): API, planificador, aprendizaje del consumo, previsión, Gemini y simulador |
 | [`app-android/`](app-android/README.md) | **App Android** en Kotlin (modos tablet y profesor) |
 | [`GUIA_DEFENSA.md`](GUIA_DEFENSA.md) | Cómo explicar y defender cada decisión ante el jurado |
+| [`marca/`](marca/README.md) | Logo (hoja-batería), icono, colores y lema |
 | `frontend/`, `planificador/`, `ia/`, `shared/`, `sw.js` | Primer prototipo web (versión anterior, solo de referencia) |
 
 ## Poner en marcha la demo
