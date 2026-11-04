@@ -2,3 +2,8 @@ config.js
 node_modules/
 .DS_Store
 .vscode/
+# Servidor
+servidor/.env
+servidor/.venv/
+servidor/fotosintesis.db
+__pycache__/
