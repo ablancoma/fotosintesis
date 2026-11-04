@@ -8,7 +8,11 @@ import json
 import socket
 from datetime import date, datetime, timedelta
 
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import consumo as consumo_mod
@@ -352,3 +356,17 @@ def ip_local() -> str:
         return ip
     except OSError:
         return "127.0.0.1"
+
+
+# ============================================================================
+#  App de escritorio del profesor (HTML servido por este mismo servidor)
+# ============================================================================
+CARPETA_PANEL = Path(__file__).resolve().parent.parent / "panel"
+
+
+@app.get("/", include_in_schema=False)
+def inicio():
+    return RedirectResponse("/panel/")
+
+
+app.mount("/panel", StaticFiles(directory=CARPETA_PANEL, html=True), name="panel")

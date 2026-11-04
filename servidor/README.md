@@ -1,9 +1,21 @@
-# 🖥️ Servidor Fotosíntesis (Python + FastAPI)
+# 🖥️ Servidor y app de escritorio de Fotosíntesis (Python + FastAPI)
 
 Recibe la batería de las tablets, guarda el horario y la previsión, calcula el plan de carga,
-genera las instrucciones para el profesor y habla con Gemini.
+genera las instrucciones para el profesor y habla con Gemini. Además sirve la **app de escritorio
+del profesor** (carpeta `panel/`), que es la pantalla principal del sistema.
 
-## Arrancar (Mac o Ubuntu)
+## App de escritorio (lo normal)
+
+```bash
+cd servidor
+source .venv/bin/activate
+pip install -r requirements-escritorio.txt   # solo la primera vez
+python escritorio.py
+```
+Abre una ventana propia con la app y arranca el servidor por detrás. Si `pywebview` no está instalado,
+la abre en el navegador (también funciona en **http://localhost:8000**).
+
+## Arrancar solo el servidor (sin ventana)
 
 ```bash
 cd servidor
@@ -42,6 +54,8 @@ Para la demo conviene borrar `fotosintesis.db` antes: al arrancar se crean solos
 
 | Archivo | Qué hace |
 |---|---|
+| `escritorio.py` | Abre la app de escritorio en su propia ventana (y arranca el servidor) |
+| `panel/` | La app de escritorio: `index.html`, `estilos.css`, `app.js` |
 | `app/main.py` | La API: todas las direcciones (`/api/...`) |
 | `app/planificador.py` | Simula mañana en franjas de 15 min y genera las instrucciones de carga |
 | `app/consumo.py` | Mide el consumo real de cada clase y aprende por tipo de actividad |

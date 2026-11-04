@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fotosíntesis</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="app">
+    <!-- ================= Barra lateral ================= -->
+    <nav class="lateral" aria-label="Secciones">
+      <div class="marca">
+        <span class="marca-icono" aria-hidden="true">🌱</span>
+        <div>
+          <strong>Fotosíntesis</strong>
+          <small id="escuela">—</small>
+        </div>
+      </div>
+      <button class="nav activo" data-vista="hoy"><span aria-hidden="true">☀️</span> Mañana</button>
+      <button class="nav" data-vista="tablets"><span aria-hidden="true">🔋</span> Tablets</button>
+      <button class="nav" data-vista="horario"><span aria-hidden="true">📚</span> Horario</button>
+      <button class="nav" data-vista="asistente"><span aria-hidden="true">💬</span> Asistente</button>
+      <button class="nav" data-vista="ajustes"><span aria-hidden="true">⚙️</span> Ajustes</button>
+      <div class="lateral-pie">
+        <span class="punto" id="punto-conexion"></span>
+        <span id="texto-conexion">Conectando…</span>
+      </div>
+    </nav>
+
+    <main>
+      <!-- ================= MAÑANA: instrucciones ================= -->
+      <section class="vista activa" id="vista-hoy">
+        <header class="cabecera">
+          <div>
+            <h1>Mañana</h1>
+            <p class="sub" id="hoy-sub">—</p>
+          </div>
+          <div class="cabecera-acciones">
+            <div class="segmentado" role="group" aria-label="Escenario de sol">
+              <button class="seg activo" data-nublado="false">☀️ Previsión</button>
+              <button class="seg" data-nublado="true">☁️ Día nublado</button>
+            </div>
+            <button class="boton-sec" id="btn-recalcular">Recalcular</button>
+          </div>
+        </header>
+
+        <!-- Arco solar del día -->
+        <figure class="arco" aria-label="Energía solar prevista por hora e instrucciones">
+          <svg id="arco-svg" viewBox="0 0 1000 220" preserveAspectRatio="none" role="img"></svg>
+          <figcaption id="arco-pie">—</figcaption>
+        </figure>
+
+        <div id="alertas" class="alertas" role="alert"></div>
+
+        <div class="hoy-rejilla">
+          <!-- Siguiente paso -->
+          <article class="siguiente" id="siguiente" aria-live="polite"></article>
+
+          <!-- Clases de mañana -->
+          <aside class="clases">
+            <h2>Clases</h2>
+            <ul class="lista-agrupada" id="lista-clases"></ul>
+          </aside>
+        </div>
+
+        <h2 class="titulo-seccion">Todas las instrucciones <span class="progreso" id="progreso"></span></h2>
+        <ul class="lista-agrupada instrucciones" id="lista-instrucciones"></ul>
+        <details class="hechas" id="bloque-hechas">
+          <summary id="resumen-hechas">Hechas</summary>
+          <ul class="lista-agrupada instrucciones" id="lista-hechas"></ul>
+        </details>
+      </section>
+
+      <!-- ================= TABLETS ================= -->
+      <section class="vista" id="vista-tablets">
+        <header class="cabecera">
+          <div>
+            <h1>Tablets</h1>
+            <p class="sub" id="tablets-sub">—</p>
+          </div>
+        </header>
+        <div class="cifras" id="tablets-cifras"></div>
+        <div class="rejilla-tablets" id="rejilla-tablets"></div>
+      </section>
+
+      <!-- ================= HORARIO ================= -->
+      <section class="vista" id="vista-horario">
+        <header class="cabecera">
+          <div>
+            <h1>Horario</h1>
+            <p class="sub">Las clases de cada día y cuántas tablets necesitan</p>
+          </div>
+          <button class="boton" id="btn-nueva-clase">Añadir clase</button>
+        </header>
+        <ul class="lista-agrupada" id="lista-horario"></ul>
+        <h2 class="titulo-seccion">Lo que gasta cada actividad</h2>
+        <p class="nota">Empieza con un valor estimado y se ajusta solo con cada clase medida.</p>
+        <ul class="lista-agrupada" id="lista-consumo"></ul>
+      </section>
+
+      <!-- ================= ASISTENTE ================= -->
+      <section class="vista" id="vista-asistente">
+        <header class="cabecera">
+          <div>
+            <h1>Asistente</h1>
+            <p class="sub">Pregunta lo que quieras sobre el plan de mañana</p>
+          </div>
+        </header>
+        <div class="chat" id="chat"></div>
+        <div class="sugerencias" id="sugerencias">
+          <button class="chip">¿Qué tablets cargo primero?</button>
+          <button class="chip">¿Puedo poner un vídeo en Ciencias?</button>
+          <button class="chip">¿Qué hago si mañana llueve?</button>
+        </div>
+        <form class="escribir" id="form-chat">
+          <input id="entrada-chat" placeholder="Escribe una pregunta" autocomplete="off" aria-label="Pregunta">
+          <button class="boton" type="submit">Enviar</button>
+        </form>
+      </section>
+
+      <!-- ================= AJUSTES ================= -->
+      <section class="vista" id="vista-ajustes">
+        <header class="cabecera">
+          <div>
+            <h1>Ajustes</h1>
+            <p class="sub">Valores estimados de la instalación de la escuela</p>
+          </div>
+        </header>
+
+        <h2 class="titulo-seccion">Previsión del tiempo</h2>
+        <ul class="lista-agrupada">
+          <li class="fila"><div><strong id="prev-origen">—</strong><small id="prev-fecha"></small></div></li>
+          <li class="fila"><button class="enlace" id="btn-prevision-servidor">Descargar ahora desde este ordenador</button></li>
+        </ul>
+        <p class="nota">Si este ordenador no tiene internet, el profesor la trae desde su móvil (app Fotosíntesis → Traer previsión).</p>
+
+        <h2 class="titulo-seccion">Instalación solar</h2>
+        <ul class="lista-agrupada" id="ajustes-solar"></ul>
+
+        <h2 class="titulo-seccion">Tablets y cargadores</h2>
+        <ul class="lista-agrupada" id="ajustes-tablets"></ul>
+
+        <h2 class="titulo-seccion">Conectar tablets</h2>
+        <ul class="lista-agrupada">
+          <li class="fila"><div><strong>Dirección para las tablets</strong><small>Escríbela en la app de cada tablet</small></div><code id="direccion"></code></li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <!-- Hoja para añadir clase -->
+  <dialog id="hoja-clase" class="hoja">
+    <form method="dialog" id="form-clase">
+      <header><button value="cancelar" class="enlace" formnovalidate>Cancelar</button><strong>Nueva clase</strong><button value="guardar" class="enlace fuerte">Añadir</button></header>
+      <ul class="lista-agrupada">
+        <li class="fila"><label for="c-asig">Asignatura</label><input id="c-asig" required placeholder="Inglés"></li>
+        <li class="fila"><label for="c-hora">Empieza</label><input id="c-hora" type="time" value="10:00" required></li>
+        <li class="fila"><label for="c-dur">Dura (min)</label><input id="c-dur" type="number" min="5" max="480" value="60" required></li>
+        <li class="fila"><label for="c-n">Tablets</label><input id="c-n" type="number" min="1" max="200" value="10" required></li>
+      </ul>
+      <div class="segmentado ancho" role="group" aria-label="Actividad" id="c-actividad">
+        <button type="button" class="seg" data-act="lectura">📖 Lectura</button>
+        <button type="button" class="seg activo" data-act="ejercicios">✏️ Ejercicios</button>
+        <button type="button" class="seg" data-act="video">🎬 Vídeo</button>
+        <button type="button" class="seg" data-act="juego">🎮 Juego</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="aviso-flotante" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -2,7 +2,8 @@
 
 Una sola app con dos modos:
 - **Tablet de alumnos**: lee la batería con la API de Android y la envía al servidor cada 15 min.
-- **Profesor**: panel de tablets, plan e instrucciones de carga, horario, asistente y previsión.
+- **Móvil del profesor**: trae la previsión del tiempo con los datos móviles y permite seguir y marcar
+  las instrucciones de carga desde el aula. Todo lo demás está en la app de escritorio del ordenador.
 
 ## Abrir y ejecutar
 
@@ -45,7 +46,9 @@ La tablet lo envía en 20 segundos (mientras la pantalla está abierta) y el pan
 | `data/Preferencias.kt` | Lo que la app recuerda: modo, servidor, nombre de la tablet |
 | `tablet/EnvioBateria.kt` | Envío cada 15 min con WorkManager |
 | `tablet/PantallaTablet.kt` | Pantalla del modo tablet |
-| `profesor/*.kt` | Las cinco pestañas del modo profesor |
+| `profesor/PantallaProfesor.kt` | Modo profesor: previsión + siguiente paso + instrucciones |
+| `ui/Componentes.kt` | Piezas visuales al estilo iOS (grupos, botones píldora, fichas) |
+| `profesor/Tab*.kt` | Pestañas de la versión anterior (ya no se usan; se pueden borrar) |
 
 ## Si algo falla al compilar
 Copia el error de la pestaña **Build** (abajo en Android Studio) y pásaselo a Claude.

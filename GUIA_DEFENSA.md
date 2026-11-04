@@ -8,11 +8,12 @@
 ## Cómo funciona (el dibujo que hay que saber explicar)
 
 ```
- Tablets de alumnos ──wifi local──► Servidor (Ubuntu) ◄──wifi local── Móvil del profesor
-  (app Android)                     · guarda baterías                 (misma app, modo profesor)
-  · lee su batería                  · aprende el consumo               · ve el panel y las instrucciones
-  · la envía cada 15 min            · calcula el plan                  · trae la previsión con sus datos móviles
-                                    · habla con la IA                  · pregunta al asistente
+ Tablets de alumnos ──wifi local──► ORDENADOR de la escuela ◄──wifi local── Móvil del profesor
+  (app Android)                     · servidor: guarda baterías,       (misma app, modo profesor)
+  · lee su batería                    aprende el consumo, calcula      · trae la previsión con sus
+  · la envía cada 15 min              el plan, habla con la IA           datos móviles
+                                    · APP DE ESCRITORIO del profesor   · marca las instrucciones
+                                      (la pantalla principal)            desde el aula
 ```
 **No necesita internet** para funcionar. Internet solo se usa a ratos: para la previsión (que trae el
 móvil del profesor) y para Gemini.
@@ -48,6 +49,15 @@ móvil del profesor) y para Gemini.
 - **FastAPI:** framework moderno y rápido; genera solo la documentación de la API (`/docs`), útil para que
   otros equipos se integren.
 - Corre en cualquier ordenador Ubuntu, y en el futuro en una **Raspberry Pi** (5 W, unos 60 €).
+
+### App de escritorio del profesor — **HTML + pywebview**
+- Es la **pantalla principal**: plan de mañana con el arco solar, siguiente paso, tablets, horario, asistente y ajustes.
+- La sirve el propio servidor y se abre en una **ventana nativa** con `pywebview` (usa el motor web del sistema:
+  WebKit en Mac, WebKitGTK en Ubuntu). No necesita internet ni instalar nada en otros ordenadores.
+- **Pregunta probable:** *¿Por qué no una app nativa de escritorio?* → Así una sola interfaz funciona en Mac, Ubuntu
+  y Windows, y cualquier ordenador de la escuela en la misma wifi puede abrirla.
+- **Diseño:** lenguaje visual de iOS/macOS (fondo gris de sistema, listas agrupadas, colores de sistema, modo
+  oscuro). Las instrucciones son lo más visible: el **siguiente paso** en grande con un botón *Hecho*.
 
 ### Base de datos — **SQLite**
 - Un único archivo, sin instalar nada ni necesitar un técnico. Ideal para una escuela.

@@ -211,32 +211,51 @@ def calcular_plan(tablets: list[dict], clases: list[dict], config: dict, radiaci
                       "con sol y batería" if "bateria" in fuentes else "con sol"
             tramos.setdefault((_hhmm(inicio), minutos, con_que), []).append(t)
 
-    # 4b. Una instrucción por grupo de tablets que se enchufan a la vez y el mismo tiempo
+    # 4b. Una instrucción por grupo de tablets que se enchufan a la vez y el mismo tiempo.
+    #     Cada instrucción lleva un título corto y un detalle, pensados para leerse de un vistazo.
     instrucciones = []
     for (hora_txt, minutos, con_que), grupo in tramos.items():
         iid = f"{dia.isoformat()}-carga-{hora_txt.replace(':', '')}-{minutos}-{grupo[0]}"
+        h, m = map(int, hora_txt.split(":"))
+        fin = _hhmm((h * 60 + m + minutos) // MIN_FRANJA) if (h * 60 + m + minutos) < 24 * 60 else "23:59"
+        n = len(grupo)
         instrucciones.append({
             "id": iid, "hora": hora_txt, "tipo": "carga", "tablets": grupo, "duracion_min": minutos,
-            "fuente": con_que, "texto": f"Enchufa {', '.join(grupo)} durante {_duracion(minutos)} ({con_que})",
+            "fuente": con_que,
+            "fuente_tipo": "bateria" if con_que == "con la batería de la escuela" else
+                           "mixta" if "batería" in con_que else "sol",
+            "titulo": f"Enchufa {n} tablet{'s' if n > 1 else ''}",
+            "detalle": f"{_duracion(minutos)}, hasta las {fin} · {con_que}",
+            "hasta": fin,
+            "texto": f"Enchufa {', '.join(grupo)} durante {_duracion(minutos)} ({con_que})",
             "hecha": iid in hechas,
         })
 
     for c in resultado_clases:
         franja = max(0, int(c["hora"][:2]) * 60 // MIN_FRANJA + int(c["hora"][3:]) // MIN_FRANJA - 1)
         iid = f"{dia.isoformat()}-clase-{c['id']}"
+        n = len(c["tablets"])
         instrucciones.append({
             "id": iid, "hora": _hhmm(franja), "tipo": "clase", "tablets": c["tablets"], "duracion_min": None,
+            "asignatura": c["asignatura"],
+            "titulo": f"Reparte {n} tablet{'s' if n != 1 else ''}",
+            "detalle": f"Para {c['asignatura']}, que empieza a las {c['hora']}",
             "texto": f"Para {c['asignatura']} ({c['hora']}) reparte: {', '.join(c['tablets']) or 'ninguna tablet'}",
             "hecha": iid in hechas,
         })
         disponibles = len(c["tablets_listas"])
         if disponibles < c["n_tablets"]:
             por_grupo = -(-c["n_tablets"] // disponibles) if disponibles else None
-            texto = (f"{c['asignatura']}: solo {disponibles} de {c['n_tablets']} tablets estarán listas. "
-                     + (f"Trabajad en grupos de {por_grupo} alumnos por tablet." if por_grupo
-                        else "Prepara la actividad sin tablets."))
-            instrucciones.append({"id": f"{iid}-aviso", "hora": _hhmm(franja), "tipo": "aviso", "tablets": [],
-                                  "duracion_min": None, "texto": texto, "hecha": False})
+            consejo = (f"Trabajad en grupos de {por_grupo} alumnos por tablet." if por_grupo
+                       else "Prepara la actividad sin tablets.")
+            texto = f"{c['asignatura']}: solo {disponibles} de {c['n_tablets']} tablets estarán listas. {consejo}"
+            instrucciones.append({
+                "id": f"{iid}-aviso", "hora": _hhmm(franja), "tipo": "aviso", "tablets": [], "duracion_min": None,
+                "asignatura": c["asignatura"],
+                "titulo": f"Faltan tablets en {c['asignatura']}",
+                "detalle": f"Solo {disponibles} de {c['n_tablets']} estarán listas. {consejo}",
+                "texto": texto, "hecha": False,
+            })
 
     orden_tipo = {"aviso": 0, "clase": 1, "carga": 2}
     instrucciones.sort(key=lambda i: (i["hora"], orden_tipo[i["tipo"]], i["tablets"][:1]))

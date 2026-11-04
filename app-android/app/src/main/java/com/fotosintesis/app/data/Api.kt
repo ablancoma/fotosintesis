@@ -46,7 +46,11 @@ data class Instruccion(
     val hora: String,
     val tipo: String,                  // "carga" | "clase" | "aviso"
     val texto: String,
-    val hecha: Boolean
+    val hecha: Boolean,
+    val titulo: String = texto,        // "Enchufa 6 tablets"
+    val detalle: String = "",          // "15 min, hasta las 06:15 · con sol"
+    val tablets: List<String> = emptyList(),
+    val fuenteTipo: String = ""        // "sol" | "bateria" | "mixta" (solo en cargas)
 )
 
 data class Plan(
@@ -160,8 +164,18 @@ class Api(private val baseUrl: String) {
             },
             instrucciones = (0 until instrucciones.length()).map { i ->
                 val ins = instrucciones.getJSONObject(i)
-                Instruccion(ins.getString("id"), ins.getString("hora"), ins.getString("tipo"),
-                    ins.getString("texto"), ins.optBoolean("hecha"))
+                val ts = ins.optJSONArray("tablets") ?: JSONArray()
+                Instruccion(
+                    id = ins.getString("id"),
+                    hora = ins.getString("hora"),
+                    tipo = ins.getString("tipo"),
+                    texto = ins.getString("texto"),
+                    hecha = ins.optBoolean("hecha"),
+                    titulo = ins.optString("titulo", ins.getString("texto")),
+                    detalle = ins.optString("detalle", ""),
+                    tablets = (0 until ts.length()).map { ts.getString(it) },
+                    fuenteTipo = ins.optString("fuente_tipo", "")
+                )
             },
             fuentePrevision = prevision.optString("fuente", "tipico"),
             origenPrevision = if (prevision.isNull("origen")) null else prevision.optString("origen"),

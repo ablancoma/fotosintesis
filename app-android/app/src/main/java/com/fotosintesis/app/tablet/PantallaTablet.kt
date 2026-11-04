@@ -1,16 +1,23 @@
 package com.fotosintesis.app.tablet
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,7 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,7 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fotosintesis.app.data.Bateria
 import com.fotosintesis.app.data.Preferencias
+import com.fotosintesis.app.ui.BotonPildora
 import com.fotosintesis.app.ui.Colores
+import com.fotosintesis.app.ui.Grupo
+import com.fotosintesis.app.ui.Separador
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -38,7 +48,7 @@ import kotlinx.coroutines.launch
 private const val SEGUNDOS_DEMO = 20L
 
 /**
- * MODO TABLET: solo muestra su nombre y su batería, y la envía al servidor.
+ * MODO TABLET: muestra su nombre y su batería, y la envía al servidor.
  * Con la app cerrada, el envío sigue cada 15 minutos (WorkManager).
  */
 @Composable
@@ -49,11 +59,13 @@ fun PantallaTablet(alCambiarModo: () -> Unit) {
 
     var tabletId by remember { mutableStateOf(prefs.tabletId) }
     var lectura by remember { mutableStateOf(Bateria.leer(context)) }
-    var estado by remember { mutableStateOf("Conectando con ${prefs.servidor}…") }
+    var estado by remember { mutableStateOf("Conectando con el servidor…") }
+    var conectado by remember { mutableStateOf(false) }
 
     suspend fun enviar() {
         lectura = Bateria.leer(context)
         estado = EnvioBateria.leerYEnviar(context)
+        conectado = estado.startsWith("Enviado")
         tabletId = prefs.tabletId
     }
 
@@ -65,43 +77,61 @@ fun PantallaTablet(alCambiarModo: () -> Unit) {
         }
     }
 
+    val pct = lectura.bateria.toDouble()
+    val color = Colores.deBateria(pct)
+
     Column(
-        modifier = Modifier.fillMaxSize().background(Colores.Oscuro).padding(32.dp),
+        modifier = Modifier.fillMaxSize().background(Colores.Fondo).systemBarsPadding()
+            .verticalScroll(rememberScrollState()).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("🌱 Fotosíntesis", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
-        Spacer(Modifier.height(32.dp))
-        Text(tabletId ?: "—", color = Color.White, fontSize = 96.sp, fontWeight = FontWeight.Bold)
-        Text("Nombre de esta tablet", color = Colores.Gris, fontSize = 14.sp)
-        Spacer(Modifier.height(40.dp))
+        Text("Tablet", fontSize = 17.sp, color = Colores.Texto2)
+        Text(tabletId ?: "—", fontSize = 88.sp, fontWeight = FontWeight.Bold, color = Colores.Texto, letterSpacing = (-2).sp)
+        Spacer(Modifier.height(28.dp))
 
-        val pct = lectura.bateria.toDouble()
-        Text(
-            "${pct.toInt()}%" + if (lectura.cargando) "  ⚡ cargando" else "",
-            color = Colores.deBateria(pct), fontSize = 40.sp, fontWeight = FontWeight.Bold
-        )
-        Spacer(Modifier.height(12.dp))
-        LinearProgressIndicator(
-            progress = { (pct / 100).toFloat() },
-            modifier = Modifier.fillMaxWidth(0.7f).height(14.dp).background(Color.Transparent, RoundedCornerShape(7.dp)),
-            color = Colores.deBateria(pct),
-            trackColor = Color(0xFF3A4850)
-        )
-        lectura.temperatura?.let {
-            Spacer(Modifier.height(8.dp))
-            Text("Temperatura de la batería: ${"%.1f".format(it)} ºC", color = Colores.Gris, fontSize = 14.sp)
+        // Pila grande al estilo iOS
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.width(150.dp).height(66.dp).border(4.dp, Colores.Texto3, RoundedCornerShape(16.dp)).padding(7.dp)
+            ) {
+                Box(Modifier.fillMaxHeight().fillMaxWidth((pct / 100).toFloat().coerceIn(0.03f, 1f))
+                    .clip(RoundedCornerShape(9.dp)).background(color))
+            }
+            Box(Modifier.width(8.dp).height(24.dp).clip(RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)).background(Colores.Texto3))
         }
+        Spacer(Modifier.height(16.dp))
+        Text("${pct.toInt()}%", fontSize = 48.sp, fontWeight = FontWeight.Bold, color = color)
+        Text(if (lectura.cargando) "⚡ Cargando" else "Sin cargar", fontSize = 17.sp, color = Colores.Texto2)
 
-        Spacer(Modifier.height(40.dp))
-        Text(estado, color = Color.White, fontSize = 15.sp, textAlign = TextAlign.Center)
-        Text("Envío automático cada 15 min, también con la app cerrada", color = Colores.Gris, fontSize = 12.sp,
-            textAlign = TextAlign.Center)
+        Spacer(Modifier.height(32.dp))
+        Grupo(Modifier.widthIn(max = 460.dp)) {
+            FilaDato("Servidor", if (conectado) "Conectado" else "Sin conexión", if (conectado) Colores.Verde else Colores.Rojo)
+            Separador()
+            FilaDato("Último envío", prefs.ultimoEnvio ?: "—")
+            lectura.temperatura?.let {
+                Separador()
+                FilaDato("Temperatura de la batería", "${"%.1f".format(it)} ºC")
+            }
+        }
+        Text(
+            estado + "\nSe envía sola cada 15 minutos, también con la app cerrada.",
+            fontSize = 13.sp, color = Colores.Texto2, textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 10.dp).widthIn(max = 460.dp)
+        )
         Spacer(Modifier.height(24.dp))
-        Button(onClick = { alcance.launch { enviar() } }) { Text("Enviar ahora") }
+        BotonPildora("Enviar ahora", Modifier.widthIn(min = 200.dp)) { alcance.launch { enviar() } }
         TextButton(onClick = {
             EnvioBateria.cancelar(context)
             alCambiarModo()
-        }) { Text("Cambiar modo o servidor", color = Colores.Gris) }
+        }) { Text("Cambiar modo o servidor", color = Colores.Azul) }
+    }
+}
+
+@Composable
+private fun FilaDato(nombre: String, valor: String, colorValor: androidx.compose.ui.graphics.Color = Colores.Texto2) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(nombre, fontSize = 16.sp, color = Colores.Texto, modifier = Modifier.weight(1f))
+        Text(valor, fontSize = 16.sp, color = colorValor)
     }
 }

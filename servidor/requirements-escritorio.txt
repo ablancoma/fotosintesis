@@ -1,0 +1,2 @@
+# Para la ventana de escritorio (además de requirements.txt)
+pywebview==5.3.2
