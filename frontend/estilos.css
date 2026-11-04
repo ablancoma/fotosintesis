@@ -106,3 +106,8 @@ main {
 
 form { display: flex; gap: 8px; margin-bottom: 10px; }
 input { flex: 1; padding: 9px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 0.95rem; }
+
+.origen { font-size: 0.75rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+.origen.local { background: #e6f4ea; color: var(--verde); }
+.origen.gemini { background: #e8eefc; color: #3558c9; }
+.fuente { margin: -6px 0 10px; font-size: 0.85rem; color: var(--suave); }

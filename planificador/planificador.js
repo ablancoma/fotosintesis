@@ -1,34 +1,97 @@
 // =====================================================================
 //  PLANIFICADOR — Persona 2
 //  Decide qué tablets cargar, a qué hora, y qué contenidos descargar.
-//  No es IA: son reglas y cálculos. Solo tocas ESTE archivo.
+//  Funciona igual con o sin internet (la previsión se guarda en la tablet).
+//  Solo tocas ESTE archivo.
 // =====================================================================
 
-// Previsión solar de ejemplo (por si no hay internet o falla la API).
-// Radiación en W/m² para las horas 0..23 de mañana.
+import { hayConexion } from "../shared/red.js";
+
+// Previsión solar de ejemplo (si nunca ha habido internet).
+// Radiación en W/m² para las horas 0..23 de un día soleado típico.
 const PREVISION_EJEMPLO = [0,0,0,0,0,0,40,180,380,560,700,780,800,760,660,500,320,140,30,0,0,0,0,0];
+const CLAVE_CACHE = "fotosintesis_prevision";
 
 // ---------------------------------------------------------------------
-// 1) PEDIR EL TIEMPO A OPEN-METEO (gratis, sin registrarse)
-//    Devuelve un array de 24 números: radiación solar de mañana, hora a hora.
+// 1) PREVISIÓN DEL TIEMPO (Open-Meteo, gratis, sin registrarse)
+//
+//    CON internet  → descarga 7 días, los GUARDA en la tablet y devuelve mañana.
+//    SIN internet  → usa lo último guardado. Si lo guardado ya no llega a mañana,
+//                    estima mañana a partir de los últimos días que sí tiene.
+//
+//    Devuelve: { valores: [24 números W/m²], fuente, actualizada, dias_guardados }
+//      fuente = "online" | "guardada" | "estimada" | "ejemplo"
 // ---------------------------------------------------------------------
 export async function obtenerPrevisionSolar(latitud, longitud) {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitud}&longitude=${longitud}` +
-              `&hourly=shortwave_radiation&forecast_days=2&timezone=auto`;
-  try {
-    const respuesta = await fetch(url);
-    const datos = await respuesta.json();
-    // La API da 48 horas (hoy + mañana). Nos quedamos con las 24 de mañana.
-    return datos.hourly.shortwave_radiation.slice(24, 48);
-  } catch (error) {
-    console.warn("No se pudo leer Open-Meteo, uso la previsión de ejemplo", error);
-    return PREVISION_EJEMPLO;
+  if (hayConexion()) {
+    try {
+      await descargarYGuardarPrevision(latitud, longitud);
+    } catch (error) {
+      console.warn("No se pudo descargar la previsión, uso la guardada", error);
+    }
   }
+  return previsionDeManana(hayConexion());
+}
+
+async function descargarYGuardarPrevision(latitud, longitud) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitud}&longitude=${longitud}` +
+              `&hourly=shortwave_radiation,cloud_cover&forecast_days=7&timezone=auto`;
+  const respuesta = await fetch(url);
+  if (!respuesta.ok) throw new Error("Open-Meteo respondió " + respuesta.status);
+  const datos = await respuesta.json();
+  const cache = {
+    descargada: new Date().toISOString(),
+    horas: datos.hourly.time,                       // ["2026-11-04T00:00", ...]
+    radiacion: datos.hourly.shortwave_radiation,    // W/m²
+    nubes: datos.hourly.cloud_cover                 // %
+  };
+  try { localStorage.setItem(CLAVE_CACHE, JSON.stringify(cache)); } catch (e) { /* sin espacio */ }
+}
+
+function leerCache() {
+  try { return JSON.parse(localStorage.getItem(CLAVE_CACHE)); } catch (e) { return null; }
+}
+
+function previsionDeManana(recienDescargada) {
+  const cache = leerCache();
+  if (!cache) {
+    return { valores: PREVISION_EJEMPLO, fuente: "ejemplo", actualizada: null, dias_guardados: 0 };
+  }
+  const manana = fechaManana();
+  const inicio = cache.horas.findIndex(h => h.startsWith(manana));
+  const diasGuardados = Math.floor(cache.horas.length / 24);
+
+  // Caso normal: mañana está en lo guardado
+  if (inicio !== -1 && inicio + 24 <= cache.radiacion.length) {
+    return {
+      valores: cache.radiacion.slice(inicio, inicio + 24),
+      fuente: recienDescargada ? "online" : "guardada",
+      actualizada: cache.descargada,
+      dias_guardados: diasGuardados
+    };
+  }
+
+  // Lo guardado es demasiado antiguo: estimamos mañana con la media de los
+  // últimos 3 días guardados (lo más parecido que tenemos)
+  const ultimos = Math.min(3, diasGuardados);
+  const valores = new Array(24).fill(0);
+  for (let d = diasGuardados - ultimos; d < diasGuardados; d++) {
+    for (let h = 0; h < 24; h++) valores[h] += cache.radiacion[d * 24 + h] / ultimos;
+  }
+  return { valores, fuente: "estimada", actualizada: cache.descargada, dias_guardados: diasGuardados };
+}
+
+function fechaManana() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0, 10);   // "2026-11-05"
 }
 
 // ---------------------------------------------------------------------
 // 2) CALCULAR EL PLAN
-//    Entrada: tablets, horario y escuela (los JSON de shared/datos) + previsión solar.
+//    Entrada: tablets, horario y escuela (los JSON de shared/datos) + previsión solar
+//             (el array de 24 valores) + consumoPrevisto (opcional, lo calcula la IA:
+//             { "Ciencias": 47, ... } en % de batería por hora).
 //    Salida: un objeto "plan" (ver README → formato del plan).
 //
 //    Regla (algoritmo "voraz", muy sencillo):
@@ -36,7 +99,10 @@ export async function obtenerPrevisionSolar(latitud, longitud) {
 //      - Repartimos esa energía primero entre las tablets que tienen clase
 //        más pronto y aún no llegan a la batería mínima.
 // ---------------------------------------------------------------------
-export function calcularPlan(tablets, horario, escuela, previsionSolar) {
+export function calcularPlan(tablets, horario, escuela, previsionSolar, consumoPrevisto = {}) {
+  // Si la IA ha aprendido el consumo real de una asignatura, usamos ese; si no, el del horario
+  horario = horario.map(c => ({ ...c, consumo_por_hora: consumoPrevisto[c.asignatura] ?? c.consumo_por_hora }));
+
   const capacidad = escuela.capacidad_bateria_tablet_wh;   // Wh de una batería llena
   const maxPorHora = escuela.potencia_cargador_tablet_w;    // Wh que puede cargar una tablet en 1 hora
 
@@ -99,6 +165,7 @@ export function calcularPlan(tablets, horario, escuela, previsionSolar) {
       id: clase.id,
       asignatura: clase.asignatura,
       hora: clase.hora_inicio,
+      consumo_por_hora: clase.consumo_por_hora,
       tablets_listas: listas.length,
       tablets_total: clase.tablets.length,
       tablets_no_listas: clase.tablets.filter(id => !listas.includes(id))

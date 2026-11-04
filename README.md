@@ -19,7 +19,10 @@ fotosintesis/
 │   └── planificador.js
 ├── ia/               👤 Persona 3 — IA (Gemini) + modo sin conexión
 │   └── ia.js
-├── shared/datos/     📄 datos de ejemplo (escuela, tablets, horario) — de todos
+├── shared/
+│   ├── red.js        🌐 ¿hay internet? (real o simulado) — de todos
+│   └── datos/        📄 escuela, tablets, horario, historial de uso — de todos
+├── sw.js             📴 guarda la app en la tablet para que abra sin internet
 ├── config.ejemplo.js 🔑 plantilla para la clave de la IA
 └── README.md
 ```
@@ -47,17 +50,38 @@ Cada uno mejora su parte sin romper la de los demás, siempre que respete el *co
 
 ### planificador/planificador.js (Persona 2)
 ```js
-obtenerPrevisionSolar(latitud, longitud)  // → array de 24 números (W/m² de mañana, hora a hora)
-calcularPlan(tablets, horario, escuela, prevision)  // → objeto plan (formato abajo)
+obtenerPrevisionSolar(latitud, longitud)
+//  Con internet: descarga 7 días de Open-Meteo y los guarda en la tablet.
+//  Sin internet: usa lo guardado (o lo estima si ya no llega a mañana).
+//  → { valores: [24 números W/m²], fuente: "online"|"guardada"|"estimada"|"ejemplo",
+//      actualizada: fecha, dias_guardados }
+calcularPlan(tablets, horario, escuela, valores, consumoPrevisto)  // → objeto plan
 ```
 
 ### ia/ia.js (Persona 3)
 ```js
-explicarPlan(plan, escuela, idioma)          // → texto para el profesor
-responderPregunta(pregunta, plan, escuela)   // → texto
-guardarOffline(plan, mensaje)                // guarda en la tablet
-cargarOffline()                              // → { plan, mensaje, fecha } o null
+// IA LOCAL (funciona sin internet)
+leerHistorial(historialInicial)              // historial de uso de ejemplo + lo registrado en la tablet
+predecirConsumo(historial)                   // aprende el gasto de cada asignatura (Holt) → { Ciencias: { prevision, muestras, tendencia } }
+consumoParaPlanificador(prediccion)          // → { Ciencias: 49.8, ... } para calcularPlan
+registrarUso(asignatura, consumoPorHora)     // añade un dato real para seguir aprendiendo
+// MENSAJES (Gemini si hay internet y clave; si no, IA local)
+explicarPlan(plan, escuela, contexto)        // → { texto, origen: "gemini"|"local" }
+responderPregunta(pregunta, plan, escuela, contexto)  // → { texto, origen }
+guardarOffline(plan, mensaje) / cargarOffline()
 ```
+
+### ¿Qué pasa sin internet?
+| Pieza | Con internet | Sin internet |
+|---|---|---|
+| Previsión del tiempo | Descarga 7 días y los guarda | Usa la guardada; si es vieja, la estima |
+| Aprender el consumo | IA local | IA local (igual) |
+| Plan de carga | Se calcula | Se calcula (igual) |
+| Mensaje y preguntas | Gemini | IA local |
+| Abrir la página | Normal | La sirve el Service Worker (`sw.js`) |
+
+> Si cambiáis archivos y no veis los cambios, subid la versión en `sw.js` (`fotosintesis-v3`…)
+> o en el navegador: DevTools → Application → Service Workers → Unregister.
 
 ### Formato del `plan`
 ```js
