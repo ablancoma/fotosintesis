@@ -39,7 +39,8 @@ def medir_clases_terminadas(con, ahora: datetime | None = None) -> int:
     ahora = ahora or datetime.now()
     hoy = ahora.date().isoformat()
     medidas = 0
-    for clase in con.execute("SELECT * FROM clases").fetchall():
+    from .db import clases_del_dia
+    for clase in clases_del_dia(con, ahora.date()):
         inicio = datetime.combine(ahora.date(), datetime.strptime(clase["hora_inicio"], "%H:%M").time())
         fin = inicio + timedelta(minutes=clase["duracion_min"])
         if fin > ahora:

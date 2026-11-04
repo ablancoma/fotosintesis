@@ -51,13 +51,17 @@ móvil del profesor) y para Gemini.
 - Corre en cualquier ordenador Ubuntu, y en el futuro en una **Raspberry Pi** (5 W, unos 60 €).
 
 ### App de escritorio del profesor — **HTML + pywebview**
-- Es la **pantalla principal**: plan de mañana con el arco solar, siguiente paso, tablets, horario, asistente y ajustes.
+- Es la **pantalla principal**: instrucciones de mañana (lo más importante), previsión día a día con el arco solar,
+  tablets, horario, asistente y ajustes de la escuela con preguntas sencillas.
 - La sirve el propio servidor y se abre en una **ventana nativa** con `pywebview` (usa el motor web del sistema:
   WebKit en Mac, WebKitGTK en Ubuntu). No necesita internet ni instalar nada en otros ordenadores.
 - **Pregunta probable:** *¿Por qué no una app nativa de escritorio?* → Así una sola interfaz funciona en Mac, Ubuntu
   y Windows, y cualquier ordenador de la escuela en la misma wifi puede abrirla.
 - **Diseño:** lenguaje visual de iOS/macOS (fondo gris de sistema, listas agrupadas, colores de sistema, modo
   oscuro). Las instrucciones son lo más visible: el **siguiente paso** en grande con un botón *Hecho*.
+- **Ajustes pensados para un profesor, no para un técnico:** en vez de pedir vatios y vatios-hora, pregunta
+  «¿cuántos paneles tenéis?», «¿tenéis batería?», «¿qué tablets usáis?» y muestra al momento cuántas tablets
+  se pueden cargar en un día de sol con esa instalación.
 
 ### Base de datos — **SQLite**
 - Un único archivo, sin instalar nada ni necesitar un técnico. Ideal para una escuela.
@@ -86,8 +90,14 @@ móvil del profesor) y para Gemini.
 - **Frase:** *"El primer día usa una estimación; cada clase la hace más precisa. Así se adapta a las baterías
   gastadas de cada escuela."*
 
-### 2. Planifica la carga (algoritmo voraz)
-- Simula mañana en **franjas de 15 minutos**.
+### 2. Planifica la carga de toda la previsión (algoritmo voraz)
+- Simula **desde ahora hasta el último día con previsión** (hasta 7 días), seguido, en **franjas de 15 minutos**:
+  la batería de cada tablet y la de la escuela pasan de un día a otro.
+- **Mira hacia delante:** si viene un día con poco sol, las tablets que se usarán ese día se cargan al 100 % en los
+  días de sol anteriores (la instrucción lo dice: *«se adelanta la carga porque viene un día con poco sol»*).
+- **Realista:** solo da instrucciones cuando el profesor está en la escuela (hora de llegada y salida en Ajustes)
+  y nunca pide enchufar más tablets que enchufes hay. El fin de semana solo se carga la batería de la escuela.
+- **Horario por días:** cada clase puede ser de un día concreto o repetirse todos los días laborables.
 - En cada franja calcula la energía del panel (previsión × potencia × eficiencia), resta lo que gasta el servidor
   y la reparte **primero entre las tablets que tienen clase antes**.
 - Respeta cuántos **enchufes** hay y la **potencia del cargador**.

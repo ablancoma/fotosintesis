@@ -50,7 +50,8 @@ data class Instruccion(
     val titulo: String = texto,        // "Enchufa 6 tablets"
     val detalle: String = "",          // "15 min, hasta las 06:15 · con sol"
     val tablets: List<String> = emptyList(),
-    val fuenteTipo: String = ""        // "sol" | "bateria" | "mixta" (solo en cargas)
+    val fuenteTipo: String = "",       // "sol" | "bateria" | "mixta" (solo en cargas)
+    val diaTexto: String = ""          // "Hoy" | "Mañana" | "Viernes 6"
 )
 
 data class Plan(
@@ -174,7 +175,8 @@ class Api(private val baseUrl: String) {
                     titulo = ins.optString("titulo", ins.getString("texto")),
                     detalle = ins.optString("detalle", ""),
                     tablets = (0 until ts.length()).map { ts.getString(it) },
-                    fuenteTipo = ins.optString("fuente_tipo", "")
+                    fuenteTipo = ins.optString("fuente_tipo", ""),
+                    diaTexto = ins.optString("dia_texto", "")
                 )
             },
             fuentePrevision = prevision.optString("fuente", "tipico"),

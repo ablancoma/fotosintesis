@@ -72,11 +72,13 @@ Para la demo conviene borrar `fotosintesis.db` antes: al arrancar se crean solos
 | POST | `/api/tablets/registro` | La tablet se registra y recibe su nombre (T01…) |
 | POST | `/api/lecturas` | La tablet envía una o varias lecturas de batería |
 | GET | `/api/tablets` | Panel: última batería de cada tablet |
-| GET/POST/PUT/DELETE | `/api/clases` | Horario |
+| GET | `/api/horario` | Clases de cada día que cubre la previsión |
+| GET/POST/PUT/DELETE | `/api/clases` | Clases (`fecha` = solo ese día; vacía = todos los días laborables) |
 | GET/PATCH | `/api/config` | Datos de la escuela (panel, batería, enchufes…) |
 | GET/POST | `/api/prevision` | Ver / recibir la previsión (del móvil del profesor) |
+| GET | `/api/prevision/dias` | Previsión día a día y hasta cuándo llega |
 | POST | `/api/prevision/actualizar` | El servidor descarga la previsión él mismo |
-| GET | `/api/plan?nublado=false` | Plan de mañana con instrucciones |
+| GET | `/api/plan` | Plan desde ahora hasta el último día de previsión, con instrucciones por día |
 | POST | `/api/plan/recalcular` | Recalcular con las baterías actuales |
 | POST/DELETE | `/api/instrucciones/{id}/hecha` | Marcar / desmarcar una instrucción |
 | GET | `/api/consumo` | Consumo estimado vs. aprendido por actividad |

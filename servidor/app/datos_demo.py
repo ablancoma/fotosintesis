@@ -9,19 +9,27 @@ from datetime import date, timedelta
 CONFIG_INICIAL = {
     "escuela_nombre": "Escuela Primaria de Chiwamba",
     "pais": "Malawi",
+    "ubicacion": "chiwamba",          # lugar elegido en Ajustes (para la previsión)
     "latitud": -13.9626,
     "longitud": 33.7741,
-    # Instalación solar
-    "panel_solar_wp": 400,            # potencia pico del panel (W)
+    # Instalación solar (en Ajustes se pregunta "cuántos paneles" y "de qué potencia")
+    "n_paneles": 2,
+    "potencia_panel_w": 200,
+    "panel_solar_wp": 400,            # potencia pico total = n_paneles × potencia_panel_w
     "eficiencia_panel": 0.75,         # pérdidas por calor, suciedad, inversor...
     # Batería de almacenamiento (opcional)
     "bateria_sistema_activa": True,
     "bateria_sistema_wh": 1000,       # capacidad (Wh)
     "bateria_sistema_nivel": 40,      # % de carga al empezar el día
     "eficiencia_bateria": 0.9,        # se pierde ~10% al guardar y sacar energía
+    # Horas en las que el profesor está en la escuela (solo entonces puede enchufar tablets)
+    "hora_llegada": 7,
+    "hora_salida": 16,
     # Consumo del propio servidor (ordenador Ubuntu)
+    "tipo_ordenador": "portatil",     # portatil | sobremesa | raspberry
     "servidor_w": 30,
     # Tablets y cargadores
+    "tipo_tablet": "mediana",         # pequena | mediana | grande
     "capacidad_tablet_wh": 25,        # batería típica de una tablet de 10" (~7000 mAh)
     "potencia_cargador_w": 10,
     "n_enchufes": 10,                 # cuántas tablets se pueden cargar a la vez

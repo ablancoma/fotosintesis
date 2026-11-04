@@ -46,10 +46,11 @@ cd servidor && source .venv/bin/activate && python simulador.py
 - Móvil → **Móvil del profesor** (servidor = la dirección que sale en Ajustes de la app de escritorio).
 
 ## Guion de la demo (2 minutos)
-1. **Escritorio → Mañana**: el arco solar del día, el siguiente paso en grande (*«06:00 · Enchufa 6 tablets»*) y las clases listas.
-2. **Móvil → Traer previsión**: el profesor descarga el tiempo real con sus datos y el plan se recalcula en el ordenador.
-3. **Escritorio**: pulsa **☁️ Día nublado** y en **Ajustes** apaga la batería de almacenamiento →
-   *«⚠️ Faltan tablets en Matemáticas: solo 9 de 20. Trabajad en grupos de 3»*. Vuelve a encenderla → se salva el día.
-4. **Emulador** (*Extended controls → Battery*): baja la batería al 15 % → aparece en **Tablets** del escritorio.
-5. **Móvil o escritorio**: marca *Hecho* en el siguiente paso → pasa al siguiente.
-6. **Asistente**: *«¿Qué tablets cargo primero?»* → responde Gemini.
+1. **Escritorio → Instrucciones**: el siguiente paso en grande (*«Mañana 07:00 · Enchufa 6 tablets»*) y las
+   instrucciones por días (Mañana, Viernes, Lunes…). Aviso: *«Viernes viene con poco sol: sus tablets se cargan antes»*.
+2. **Móvil → Traer previsión**: el profesor descarga 7 días de tiempo con sus datos. En **Escritorio → Previsión** se ve
+   hasta qué día hay previsión y el sol de cada día, con las cargas y clases del plan sobre la curva.
+3. **Escritorio → Horario**: añade una clase *solo para el viernes* (o para todos los días) → el plan se recalcula.
+4. **Ajustes**: responde «No tenemos» batería → aparecen más instrucciones y avisos. Vuelve a «Sí» → se salva.
+5. **Emulador** (*Extended controls → Battery*): baja la batería al 15 % → aparece en **Tablets**.
+6. **Botón 💬 Asistente** (abajo a la derecha): *«¿Qué día hay menos sol?»* → responde Gemini.

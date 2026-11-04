@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS clases (
     hora_inicio  TEXT NOT NULL,            -- "09:00"
     duracion_min INTEGER NOT NULL,
     actividad    TEXT NOT NULL,            -- lectura | ejercicios | video | juego
-    n_tablets    INTEGER NOT NULL
+    n_tablets    INTEGER NOT NULL,
+    fecha        TEXT                      -- "2026-11-06" = solo ese día · NULL = todos los días laborables
 );
 
 CREATE TABLE IF NOT EXISTS consumos (       -- consumo real medido por clase (para aprender)
@@ -82,6 +83,17 @@ def conectar() -> sqlite3.Connection:
 def crear_tablas() -> None:
     with conectar() as con:
         con.executescript(ESQUEMA)
+        # Bases de datos de versiones anteriores: añadir la columna fecha si falta
+        columnas = {f["name"] for f in con.execute("PRAGMA table_info(clases)")}
+        if "fecha" not in columnas:
+            con.execute("ALTER TABLE clases ADD COLUMN fecha TEXT")
+
+
+def clases_del_dia(con, fecha) -> list[dict]:
+    """Clases de un día: las de esa fecha + las que se repiten todos los días laborables (lunes a viernes)."""
+    laborable = fecha.weekday() < 5
+    return filas(con, "SELECT * FROM clases WHERE fecha = ? OR (fecha IS NULL AND ?) ORDER BY hora_inicio",
+                 (fecha.isoformat(), int(laborable)))
 
 
 def filas(con, sql, params=()):
@@ -89,7 +101,10 @@ def filas(con, sql, params=()):
 
 
 def leer_config(con) -> dict:
-    return {f["clave"]: json.loads(f["valor"]) for f in con.execute("SELECT clave, valor FROM config")}
+    """Configuración guardada. Las claves nuevas que no estén guardadas toman su valor por defecto."""
+    from .datos_demo import CONFIG_INICIAL
+    guardada = {f["clave"]: json.loads(f["valor"]) for f in con.execute("SELECT clave, valor FROM config")}
+    return {**CONFIG_INICIAL, **guardada}
 
 
 def guardar_config(con, valores: dict) -> None:

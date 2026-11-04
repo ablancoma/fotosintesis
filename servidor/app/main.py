@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 from . import consumo as consumo_mod
 from . import ia, meteo
 from .datos_demo import cargar_si_vacio
-from .db import conectar, crear_tablas, filas, guardar_config, leer_config
+from .db import clases_del_dia, conectar, crear_tablas, filas, guardar_config, leer_config
 from .planificador import calcular_plan
 
 app = FastAPI(title="Fotosíntesis", description="Planificador de carga de tablets con energía solar",
@@ -28,6 +28,7 @@ crear_tablas()
 with conectar() as _con:
     cargar_si_vacio(_con)
 
+VERSION_PLAN = 2              # si cambia el formato del plan, los planes guardados antiguos se descartan
 MINUTOS_SIN_DATOS = 40        # si una tablet no envía nada en este tiempo, se marca "sin datos"
 ACTIVIDADES = {"lectura", "ejercicios", "video", "juego"}
 
@@ -55,6 +56,8 @@ class Clase(BaseModel):
     duracion_min: int = Field(..., gt=0, le=480)
     actividad: str = Field(..., examples=["ejercicios"])
     n_tablets: int = Field(..., gt=0)
+    fecha: str | None = Field(None, pattern=r"^\d{4}-\d{2}-\d{2}$", examples=["2026-11-06"],
+                              description="Solo ese día. Vacío = todos los días laborables")
 
 
 class Prevision(BaseModel):
@@ -158,13 +161,32 @@ def listar_clases():
         return filas(con, "SELECT * FROM clases ORDER BY hora_inicio")
 
 
+@app.get("/api/horario", tags=["Horario"])
+def horario_por_dias():
+    """Clases de cada día que cubre la previsión (de hoy al último día)."""
+    from .planificador import DIAS_SEMANA, MESES, texto_dia
+    with conectar() as con:
+        radiacion, info = meteo.radiacion_horizonte(con)
+        hoy = date.today()
+        dias = []
+        for d in sorted(radiacion):
+            dias.append({
+                "fecha": d.isoformat(), "dia_texto": texto_dia(d, hoy),
+                "nombre": f"{DIAS_SEMANA[d.weekday()]} {d.day} de {MESES[d.month - 1]}",
+                "laborable": d.weekday() < 5, "con_prevision": info["hasta"] is not None and d.isoformat() <= info["hasta"],
+                "clases": [dict(c, repite=c["fecha"] is None) for c in clases_del_dia(con, d)],
+            })
+    return {"dias": dias, "prevision_hasta": info["hasta"]}
+
+
 @app.post("/api/clases", tags=["Horario"])
 def crear_clase(c: Clase):
     _validar_actividad(c.actividad)
     with conectar() as con:
         invalidar_plan(con)
-        cur = con.execute("INSERT INTO clases(asignatura, hora_inicio, duracion_min, actividad, n_tablets) "
-                          "VALUES(?,?,?,?,?)", (c.asignatura, c.hora_inicio, c.duracion_min, c.actividad, c.n_tablets))
+        cur = con.execute("INSERT INTO clases(asignatura, hora_inicio, duracion_min, actividad, n_tablets, fecha) "
+                          "VALUES(?,?,?,?,?,?)",
+                          (c.asignatura, c.hora_inicio, c.duracion_min, c.actividad, c.n_tablets, c.fecha))
         return {"id": cur.lastrowid, **c.model_dump()}
 
 
@@ -173,8 +195,9 @@ def editar_clase(clase_id: int, c: Clase):
     _validar_actividad(c.actividad)
     with conectar() as con:
         invalidar_plan(con)
-        cur = con.execute("UPDATE clases SET asignatura=?, hora_inicio=?, duracion_min=?, actividad=?, n_tablets=? "
-                          "WHERE id=?", (c.asignatura, c.hora_inicio, c.duracion_min, c.actividad, c.n_tablets, clase_id))
+        cur = con.execute("UPDATE clases SET asignatura=?, hora_inicio=?, duracion_min=?, actividad=?, n_tablets=?, "
+                          "fecha=? WHERE id=?",
+                          (c.asignatura, c.hora_inicio, c.duracion_min, c.actividad, c.n_tablets, c.fecha, clase_id))
         if cur.rowcount == 0:
             raise HTTPException(404, "Clase no encontrada")
         return {"id": clase_id, **c.model_dump()}
@@ -222,6 +245,36 @@ def cambiar_config(cambios: dict):
 def ver_prevision():
     with conectar() as con:
         return meteo.resumen(con)
+
+
+@app.get("/api/prevision/dias", tags=["Previsión"])
+def prevision_por_dias():
+    """Toda la previsión guardada, día a día: hasta cuándo llega y cuánta energía dará el panel cada día."""
+    with conectar() as con:
+        cfg = leer_config(con)
+        fila = con.execute("SELECT * FROM prevision WHERE id = 1").fetchone()
+    manana = (date.today() + timedelta(days=1)).isoformat()
+    if not fila:
+        return {"hay": False, "manana": manana, "dias": []}
+    horas, radiacion = json.loads(fila["horas"]), json.loads(fila["radiacion"])
+    factor = cfg["panel_solar_wp"] / 1000 * cfg["eficiencia_panel"]
+    dias = []
+    for inicio in range(0, len(horas) - 23, 24):
+        valores = [r or 0 for r in radiacion[inicio:inicio + 24]]
+        dias.append({
+            "fecha": horas[inicio][:10],
+            "energia_wh": round(sum(valores) * factor),
+            "pico_hora": max(range(24), key=lambda h: valores[h]),
+            "solar_por_hora_wh": [round(v * factor, 1) for v in valores],
+        })
+    hasta = dias[-1]["fecha"] if dias else None
+    return {
+        "hay": True, "origen": fila["origen"], "descargada": fila["descargada"], "manana": manana,
+        "desde": dias[0]["fecha"] if dias else None, "hasta": hasta,
+        "cubre_manana": any(d["fecha"] == manana for d in dias),
+        "dias_restantes": sum(1 for d in dias if d["fecha"] >= manana),
+        "dias": dias,
+    }
 
 
 @app.post("/api/prevision", tags=["Previsión"])
@@ -297,16 +350,19 @@ def invalidar_plan(con) -> None:
 
 def _plan_guardado_o_nuevo(con, nublado: bool) -> dict:
     fila = con.execute("SELECT * FROM plan_guardado WHERE id = 1").fetchone()
-    manana = (date.today() + timedelta(days=1)).isoformat()
     if fila and bool(fila["nublado"]) == nublado:
         plan = json.loads(fila["datos"])
-        if plan["dia"] == manana:
+        creado = datetime.fromisoformat(fila["creado"])
+        # El plan se recalcula solo cada hora (o antes si cambian horario, previsión o ajustes)
+        if (plan.get("version") == VERSION_PLAN and creado.date() == date.today()
+                and datetime.now() - creado < timedelta(minutes=60)):
             hechas = {f[0] for f in con.execute("SELECT instruccion_id FROM instrucciones_hechas")}
             for i in plan["instrucciones"]:
                 i["hecha"] = i["id"] in hechas
             plan["calculado"] = fila["creado"]
             return plan
     plan = _plan_completo(con, nublado)
+    plan["version"] = VERSION_PLAN
     plan["calculado"] = datetime.now().isoformat(timespec="seconds")
     con.execute("INSERT INTO plan_guardado(id, creado, nublado, datos) VALUES(1, ?, ?, ?) ON CONFLICT(id) DO UPDATE "
                 "SET creado=excluded.creado, nublado=excluded.nublado, datos=excluded.datos",
@@ -317,12 +373,13 @@ def _plan_guardado_o_nuevo(con, nublado: bool) -> dict:
 def _plan_completo(con, nublado: bool = False) -> dict:
     cfg = leer_config(con)
     tablets = [{"id": t["id"], "bateria": t["bateria"]} for t in estado_tablets(con) if t["bateria"] is not None]
-    prevision = meteo.prevision_de_manana(con)
+    radiacion, info_prevision = meteo.radiacion_horizonte(con)
+    clases_por_dia = {d: clases_del_dia(con, d) for d in radiacion}
     consumo = consumo_mod.prediccion_consumo(con, cfg)
     hechas = {f[0] for f in con.execute("SELECT instruccion_id FROM instrucciones_hechas")}
-    plan = calcular_plan(tablets, filas(con, "SELECT * FROM clases"), cfg, prevision["valores"], consumo,
+    plan = calcular_plan(tablets, clases_por_dia, cfg, radiacion, consumo, inicio=datetime.now(),
                          factor_sol=0.3 if nublado else 1.0, hechas=hechas)
-    plan["prevision"] = {k: v for k, v in prevision.items() if k != "valores"}
+    plan["prevision"] = info_prevision
     plan["consumo"] = consumo
     plan["nublado_simulado"] = nublado
     return plan

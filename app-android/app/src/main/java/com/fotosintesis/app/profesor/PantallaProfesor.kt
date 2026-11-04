@@ -150,7 +150,7 @@ fun PantallaProfesor(alCambiarModo: () -> Unit) {
             if (tareas.size > 1) {
                 item {
                     val total = p.instrucciones.count { it.tipo != "aviso" }
-                    TituloSeccion("Después", "${hechas.size} de $total hechas")
+                    TituloSeccion("Próximas instrucciones", "${hechas.size} de $total hechas")
                 }
                 item {
                     Grupo {
@@ -282,6 +282,9 @@ private fun TarjetaSiguiente(ins: Instruccion?, alHecho: (Instruccion) -> Unit) 
             return@Grupo
         }
         Column(Modifier.padding(20.dp)) {
+            if (ins.diaTexto.isNotEmpty()) {
+                Text(ins.diaTexto, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Colores.Texto2)
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(ins.hora, fontSize = 46.sp, fontWeight = FontWeight.Bold, color = Colores.Texto, letterSpacing = (-1).sp)
                 Spacer(Modifier.width(16.dp))
@@ -318,7 +321,10 @@ private fun FilaInstruccion(ins: Instruccion, alPulsar: () -> Unit) {
             contentAlignment = Alignment.Center
         ) { if (ins.hecha) Text("✓", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold) }
         Spacer(Modifier.width(12.dp))
-        Text(ins.hora, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Colores.Texto2, modifier = Modifier.width(50.dp))
+        Column(Modifier.width(64.dp)) {
+            if (ins.diaTexto.isNotEmpty()) Text(ins.diaTexto, fontSize = 11.sp, color = Colores.Texto3, maxLines = 1)
+            Text(ins.hora, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Colores.Texto2)
+        }
         Column(Modifier.weight(1f)) {
             Text(ins.titulo, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
                 color = if (ins.hecha) Colores.Texto2 else Colores.Texto,

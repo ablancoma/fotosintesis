@@ -102,7 +102,7 @@ button { cursor: pointer; }
 .punto.error { background: var(--rojo); }
 
 /* ---------------- Contenido ---------------- */
-main { overflow-y: auto; padding: 28px 40px 56px; }
+main { overflow-y: auto; padding: 28px 40px 110px; }
 .vista { display: none; max-width: 1080px; margin: 0 auto; }
 .vista.activa { display: block; }
 
@@ -147,7 +147,7 @@ h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 10p
 
 /* ---------------- Arco solar ---------------- */
 .arco { margin: 0 0 20px; background: var(--superficie); border-radius: 16px; padding: 18px 20px 12px; }
-.arco svg { width: 100%; height: 190px; display: block; overflow: visible; }
+.arco svg { width: 100%; height: 220px; display: block; overflow: visible; }
 .arco figcaption { color: var(--texto-2); font-size: 13px; margin-top: 6px; }
 .arco .curva { fill: url(#degradado-sol); stroke: var(--sol); stroke-width: 2.5; }
 .arco .eje text { fill: var(--texto-3); font-size: 12px; }
@@ -314,3 +314,159 @@ h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 10p
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* =====================================================================
+   Instrucciones: enlace al estado de la previsión
+   ===================================================================== */
+.estado-prevision {
+  width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+  border: 0; background: var(--superficie); border-radius: var(--radio); padding: 12px 16px; margin-bottom: 16px;
+  color: var(--texto-2); font-size: 14px;
+}
+.estado-prevision strong { color: var(--texto); }
+.estado-prevision .ver { margin-left: auto; color: var(--azul); white-space: nowrap; font-weight: 500; }
+.estado-prevision:hover { background: var(--superficie-2); }
+.estado-prevision.aviso { background: color-mix(in srgb, var(--naranja) 14%, var(--superficie)); }
+
+/* =====================================================================
+   Previsión
+   ===================================================================== */
+.prevision-estado {
+  background: var(--superficie); border-radius: 20px; padding: 24px 28px; margin-bottom: 24px; box-shadow: var(--sombra-hero);
+}
+.prevision-estado .etiqueta { color: var(--texto-2); font-weight: 600; font-size: 14px; }
+.prevision-estado .grande { font-size: 40px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin: 4px 0 8px; }
+.prevision-estado p { margin: 0; font-size: 16px; }
+.prevision-estado .pista { margin-top: 6px; }
+.prevision-estado.aviso { border: 2px solid var(--naranja); }
+.prevision-estado.aviso .grande { color: var(--naranja); }
+
+.prevision-rejilla { display: grid; grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.4fr); gap: 24px; align-items: start; }
+.prevision-rejilla h2 { margin-bottom: 10px; }
+.prevision-rejilla .arco { margin: 0; }
+
+.dias > li { padding: 0; }
+.dia {
+  width: 100%; display: grid; grid-template-columns: 1fr 32px 90px 78px; gap: 12px; align-items: center;
+  border: 0; background: transparent; text-align: left; padding: 11px 16px;
+}
+.dia:hover { background: var(--superficie-2); }
+.dia.elegido { background: color-mix(in srgb, var(--verde) 12%, var(--superficie)); }
+.dia.pasado { opacity: 0.5; }
+.dia-nombre { font-weight: 600; display: flex; flex-direction: column; }
+.dia-nombre small { font-weight: 400; color: var(--texto-2); font-size: 12px; }
+.dia-icono { font-size: 20px; text-align: center; }
+.dia-barra { height: 6px; border-radius: 3px; background: var(--relleno-control); overflow: hidden; }
+.dia-barra i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #ffd25e, var(--sol)); }
+.dia-wh { text-align: right; font-variant-numeric: tabular-nums; color: var(--texto-2); font-size: 14px; }
+
+/* =====================================================================
+   Ajustes: preguntas
+   ===================================================================== */
+.resumen-instalacion {
+  display: flex; align-items: center; gap: 20px; background: var(--superficie); border-radius: 20px;
+  padding: 20px 26px; margin-bottom: 28px; box-shadow: var(--sombra-hero);
+}
+.resumen-cifra { font-size: 56px; font-weight: 700; letter-spacing: -0.04em; color: var(--verde-hoja); font-variant-numeric: tabular-nums; line-height: 1; }
+.resumen-texto strong { display: block; font-size: 18px; }
+.resumen-texto span { color: var(--texto-2); font-size: 14px; }
+
+.pregunta-bloque { margin-bottom: 30px; }
+.pregunta-bloque h2 { margin-bottom: 10px; }
+.pregunta { margin: 14px 4px 8px; font-weight: 500; }
+.pista { color: var(--texto-2); font-size: 13px; margin: 8px 4px 0; }
+
+.opciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.opciones.dos { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.opcion {
+  border: 2px solid transparent; background: var(--superficie); border-radius: 14px; padding: 14px 16px;
+  text-align: left; display: flex; flex-direction: column; gap: 2px; position: relative;
+}
+.opcion:hover { border-color: var(--separador); }
+.opcion strong { font-size: 16px; }
+.opcion small { color: var(--texto-2); font-size: 13px; }
+.opcion-emoji { font-size: 24px; margin-bottom: 4px; }
+.opcion.elegida { border-color: var(--verde); background: color-mix(in srgb, var(--verde) 8%, var(--superficie)); }
+.opcion.elegida::after {
+  content: "✓"; position: absolute; top: 10px; right: 12px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--verde); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center;
+}
+
+.campo {
+  border: 0; background: transparent; text-align: right; font: inherit; color: var(--texto-2);
+  min-width: 0; flex: 1; outline: none; padding: 4px 0;
+}
+select.campo { cursor: pointer; text-align-last: right; appearance: none; padding-right: 18px;
+  background: linear-gradient(45deg, transparent 50%, var(--texto-3) 50%) right 6px center / 6px 6px no-repeat,
+              linear-gradient(-45deg, transparent 50%, var(--texto-3) 50%) right 0 center / 6px 6px no-repeat; }
+.campo:focus { color: var(--texto); }
+.fila label { white-space: nowrap; }
+
+.contador .paso-botones { align-items: center; }
+.contador-valor {
+  min-width: 56px; text-align: center; font-weight: 700; font-size: 17px; font-variant-numeric: tabular-nums;
+  border-left: 1px solid var(--separador); border-right: 1px solid var(--separador); line-height: 30px;
+}
+
+.avanzado summary { color: var(--azul); cursor: pointer; font-weight: 500; padding: 4px; list-style: none; margin-bottom: 8px; }
+.avanzado summary::-webkit-details-marker { display: none; }
+
+@media (max-width: 900px) {
+  .prevision-rejilla { grid-template-columns: 1fr; }
+  .resumen-instalacion { flex-direction: column; align-items: flex-start; }
+}
+
+/* =====================================================================
+   Pestañas de días (Instrucciones y Horario)
+   ===================================================================== */
+.titulo-dias { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.titulo-dias h2 { margin: 0; }
+.pestanas-dias { display: flex; gap: 6px; overflow-x: auto; padding: 2px; }
+.pestanas-dias.grande { margin-bottom: 4px; }
+.pestana {
+  border: 0; background: var(--superficie); border-radius: 12px; padding: 8px 14px; text-align: left;
+  display: flex; flex-direction: column; min-width: 96px; flex: none;
+}
+.pestana strong { font-size: 14px; }
+.pestana small { color: var(--texto-2); font-size: 12px; white-space: nowrap; }
+.pestana:hover { background: var(--superficie-2); }
+.pestana.activa { background: var(--verde-hoja); color: #fff; }
+.pestana.activa small { color: rgba(255, 255, 255, 0.85); }
+.repite { font-size: 13px; }
+
+.alerta.suave { background: color-mix(in srgb, var(--azul) 9%, var(--superficie)); }
+.siguiente .aviso-texto { color: var(--naranja); font-weight: 600; margin-top: 8px; }
+
+/* =====================================================================
+   Asistente: botón flotante y panel lateral
+   ===================================================================== */
+.fab {
+  position: fixed; right: 24px; bottom: 24px; z-index: 20;
+  display: flex; align-items: center; gap: 8px; border: 0; border-radius: 999px;
+  padding: 14px 20px 14px 16px; font-size: 20px; color: #fff; background: var(--verde-hoja);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+.fab span { font-size: 15px; font-weight: 600; }
+.fab:hover { filter: brightness(1.07); }
+.fab.abierto { display: none; }
+
+.panel-chat {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(400px, 100vw); z-index: 30;
+  display: flex; flex-direction: column; gap: 10px; padding: 18px 18px 18px;
+  background: var(--fondo); border-left: 1px solid var(--separador); box-shadow: -10px 0 30px rgba(0, 0, 0, 0.12);
+  animation: entrar-chat 0.2s ease-out;
+}
+.panel-chat[hidden] { display: none; }
+.panel-chat header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.panel-chat header strong { display: block; font-size: 20px; }
+.panel-chat header small { color: var(--texto-2); font-size: 13px; }
+.panel-chat .cerrar {
+  border: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--relleno-control); color: var(--texto-2); font-size: 14px;
+}
+.panel-chat .chat { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px 0; }
+.panel-chat .burbuja { max-width: 88%; }
+.panel-chat .sugerencias { margin-bottom: 0; }
+.panel-chat .escribir input { min-width: 0; }
+body.chat-abierto main { padding-right: 440px; }
+@keyframes entrar-chat { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 1100px) { body.chat-abierto main { padding-right: 40px; } }

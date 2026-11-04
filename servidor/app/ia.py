@@ -46,18 +46,20 @@ def _gemini(prompt: str) -> str:
 
 def _datos_para_ia(plan: dict, prevision: dict, consumo: dict) -> str:
     return json.dumps({
-        "dia": plan["dia"],
-        "energia_solar_prevista_wh": plan["energia_solar_wh"],
-        "origen_prevision": prevision.get("fuente"),
-        "clases": [{k: c[k] for k in ("asignatura", "hora", "actividad", "n_tablets", "consumo_pct_hora")}
+        "ahora": plan.get("inicio"),
+        "previsión_hasta": prevision.get("hasta"),
+        "dias": [{k: d[k] for k in ("dia_texto", "nombre", "energia_solar_wh", "escaso", "n_clases")}
+                 for d in plan.get("dias", [])],
+        "clases": [{k: c[k] for k in ("dia_texto", "asignatura", "hora", "actividad", "n_tablets", "consumo_pct_hora")}
                    | {"tablets_listas": len(c["tablets_listas"])} for c in plan["clases"]],
-        "instrucciones": [f'{i["hora"]} {i["texto"]}' for i in plan["instrucciones"]],
+        "instrucciones": [f'{i.get("dia_texto", "")} {i["hora"]} {i["texto"]}' for i in plan["instrucciones"][:45]],
         "consumo_aprendido_pct_hora": {a: v["prevision"] for a, v in consumo.items()},
     }, ensure_ascii=False)
 
 
 def resumen_del_plan(plan: dict, prevision: dict, consumo: dict) -> dict:
-    prompt = ("Resume para el profesor qué tiene que hacer mañana con las tablets, en 4-6 frases. "
+    prompt = ("Resume para el profesor qué tiene que hacer con las tablets hoy y los próximos días, en 4-6 frases. "
+              "Menciona si algún día viene con poco sol. "
               "Empieza por lo urgente. Si alguna clase no tendrá todas las tablets, propón una alternativa "
               "pedagógica concreta.\n\nDatos: " + _datos_para_ia(plan, prevision, consumo))
     try:
@@ -77,13 +79,16 @@ def responder(pregunta: str, plan: dict, prevision: dict, consumo: dict) -> dict
 
 
 def _resumen_local(plan: dict, prevision: dict, consumo: dict) -> str:
-    lineas = [f"☀️ Mañana el panel dará unos {plan['energia_solar_wh']} Wh."]
-    for c in plan["clases"]:
-        listas = len(c["tablets_listas"])
-        if listas >= c["n_tablets"]:
-            lineas.append(f"✅ {c['asignatura']} ({c['hora']}): las {c['n_tablets']} tablets estarán listas.")
-        else:
-            lineas.append(f"⚠️ {c['asignatura']} ({c['hora']}): solo {listas} de {c['n_tablets']} tablets listas.")
+    lineas = []
+    escasos = [d["dia_texto"] for d in plan.get("dias", []) if d.get("escaso")]
+    if escasos:
+        lineas.append(f"🌥️ Poco sol: {', '.join(escasos)}. Las tablets de esos días se cargan antes.")
+    faltan = [c for c in plan["clases"] if len(c["tablets_listas"]) < c["n_tablets"]]
+    for c in faltan[:4]:
+        lineas.append(f"⚠️ {c.get('dia_texto', '')} {c['hora']} · {c['asignatura']}: solo "
+                      f"{len(c['tablets_listas'])} de {c['n_tablets']} tablets listas.")
+    if not faltan:
+        lineas.append(f"✅ Las {len(plan['clases'])} clases planificadas tendrán sus tablets listas.")
     cargas = [i for i in plan["instrucciones"] if i["tipo"] == "carga"]
     if cargas:
         lineas.append(f"🔌 Hay {len(cargas)} cargas programadas; la primera a las {cargas[0]['hora']}.")
