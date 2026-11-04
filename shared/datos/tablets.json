@@ -1,0 +1,227 @@
+[
+  {
+    "id": "T01",
+    "bateria": 10,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T02",
+    "bateria": 50,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T03",
+    "bateria": 20,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "ciencias-ciclo-agua-video",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T04",
+    "bateria": 10,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T05",
+    "bateria": 5,
+    "contenidos_descargados": []
+  },
+  {
+    "id": "T06",
+    "bateria": 5,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T07",
+    "bateria": 50,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T08",
+    "bateria": 15,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T09",
+    "bateria": 10,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T10",
+    "bateria": 20,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T11",
+    "bateria": 40,
+    "contenidos_descargados": [
+      "mates-fracciones"
+    ]
+  },
+  {
+    "id": "T12",
+    "bateria": 95,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T13",
+    "bateria": 25,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T14",
+    "bateria": 25,
+    "contenidos_descargados": []
+  },
+  {
+    "id": "T15",
+    "bateria": 15,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T16",
+    "bateria": 5,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T17",
+    "bateria": 95,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T18",
+    "bateria": 60,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T19",
+    "bateria": 10,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T20",
+    "bateria": 5,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T21",
+    "bateria": 70,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T22",
+    "bateria": 70,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T23",
+    "bateria": 60,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T24",
+    "bateria": 15,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T25",
+    "bateria": 40,
+    "contenidos_descargados": [
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T26",
+    "bateria": 15,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "ciencias-ciclo-agua-video"
+    ]
+  },
+  {
+    "id": "T27",
+    "bateria": 35,
+    "contenidos_descargados": [
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T28",
+    "bateria": 20,
+    "contenidos_descargados": [
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T29",
+    "bateria": 20,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "ciencias-ciclo-agua-video",
+      "lectura-cuentos-1"
+    ]
+  },
+  {
+    "id": "T30",
+    "bateria": 25,
+    "contenidos_descargados": [
+      "mates-fracciones",
+      "lectura-cuentos-1"
+    ]
+  }
+]

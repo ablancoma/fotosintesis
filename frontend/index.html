@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fotosíntesis</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <!-- =============================================================
+       FRONTEND — Persona 1
+       La página que ve el profesor. Solo tocas la carpeta frontend/.
+       ============================================================= -->
+
+  <header>
+    <div>
+      <h1>🌱 Fotosíntesis</h1>
+      <p id="escuela">Cargando escuela…</p>
+    </div>
+    <div id="estado-red" class="pastilla">🌐 Con internet</div>
+  </header>
+
+  <!-- Simulador para la demo -->
+  <section class="simulador">
+    <span>Simulador:</span>
+    <button id="btn-nublado">☁️ Día nublado</button>
+    <button id="btn-sin-red">📴 Cortar internet</button>
+    <button id="btn-recalcular">🔄 Recalcular plan</button>
+  </section>
+
+  <main>
+    <!-- Mensaje de la IA -->
+    <section class="tarjeta destacada">
+      <h2>🤖 Tu asistente dice</h2>
+      <p id="mensaje-ia" class="mensaje">Calculando el plan…</p>
+    </section>
+
+    <!-- ¿Están listas las clases de mañana? -->
+    <section class="tarjeta">
+      <h2>📚 Clases de mañana</h2>
+      <div id="clases" class="clases"></div>
+    </section>
+
+    <!-- Plan de carga hora a hora -->
+    <section class="tarjeta">
+      <h2>🔋 Plan de carga (energía solar por hora)</h2>
+      <div id="franjas" class="franjas"></div>
+    </section>
+
+    <!-- Descargas -->
+    <section class="tarjeta">
+      <h2>📥 Contenidos que hay que descargar</h2>
+      <ul id="precargas"></ul>
+    </section>
+
+    <!-- Estado de las tablets -->
+    <section class="tarjeta">
+      <h2>📱 Tablets ahora mismo</h2>
+      <div id="tablets" class="tablets"></div>
+    </section>
+
+    <!-- Preguntar a la IA -->
+    <section class="tarjeta">
+      <h2>💬 Pregunta a tu asistente</h2>
+      <form id="form-pregunta">
+        <input id="pregunta" placeholder="Ej: ¿Puedo poner un vídeo a las 12?" autocomplete="off">
+        <button type="submit">Preguntar</button>
+      </form>
+      <p id="respuesta" class="mensaje"></p>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
