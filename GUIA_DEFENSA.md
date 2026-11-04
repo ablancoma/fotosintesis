@@ -1,7 +1,7 @@
 # 🛡️ Guía para defender Fotosíntesis ante el jurado
 
 ## Marca
-**Una hoja que se carga como una batería** (ver `marca/README.md`). Lema: **«Que la batería no decida cuánto aprendes»**.
+**El sol detrás de una hoja**, sobre verde noche, con la fuente Lexend (ver `marca/README.md`). Lema: **«Que la batería no decida cuánto aprendes»**.
 
 ## La idea en 20 segundos
 > En las escuelas rurales con paneles solares, el problema no es tener tablets: es que **lleguen cargadas a clase**.
@@ -60,8 +60,8 @@ móvil del profesor) y para Gemini.
   WebKit en Mac, WebKitGTK en Ubuntu). No necesita internet ni instalar nada en otros ordenadores.
 - **Pregunta probable:** *¿Por qué no una app nativa de escritorio?* → Así una sola interfaz funciona en Mac, Ubuntu
   y Windows, y cualquier ordenador de la escuela en la misma wifi puede abrirla.
-- **Diseño:** lenguaje visual de iOS/macOS (fondo gris de sistema, listas agrupadas, colores de sistema, modo
-  oscuro). Las instrucciones son lo más visible: el **siguiente paso** en grande con un botón *Hecho*.
+- **Diseño:** la estética de la marca: fondo verde noche, acento lima y amarillo sol, iconos de línea y la fuente
+  **Lexend**, pensada para leer con facilidad e incluida en la app (no necesita internet). Las instrucciones son lo más visible: el **siguiente paso** en grande con un botón *Hecho*.
 - **Ajustes pensados para un profesor, no para un técnico:** en vez de pedir vatios y vatios-hora, pregunta
   «¿cuántos paneles tenéis?», «¿tenéis batería?», «¿cuántas tablets tenéis y cuántas podéis cargar a la vez?» y
   muestra al momento cuántas tablets se pueden cargar en un día de sol con esa instalación. Si se añaden tablets,

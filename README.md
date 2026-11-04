@@ -1,4 +1,4 @@
-<img src="marca/logo-horizontal.svg" alt="Fotosíntesis" width="360">
+<img src="marca/logo-horizontal-oscuro.svg" alt="Fotosíntesis" width="420">
 
 # Hack4Edu 2026 · Reto 02 «Aprender sin conexión»
 
@@ -21,7 +21,7 @@
 | [`servidor/`](servidor/README.md) | **Servidor** en Python + **app de escritorio del profesor** (`servidor/panel/`): API, planificador, aprendizaje del consumo, previsión, Gemini y simulador |
 | [`app-android/`](app-android/README.md) | **App Android** en Kotlin (modos tablet y profesor) |
 | [`GUIA_DEFENSA.md`](GUIA_DEFENSA.md) | Cómo explicar y defender cada decisión ante el jurado |
-| [`marca/`](marca/README.md) | Logo (hoja-batería), icono, colores y lema |
+| [`marca/`](marca/README.md) | Logo (sol y hoja), icono, colores, fuente y lema |
 | `frontend/`, `planificador/`, `ia/`, `shared/`, `sw.js` | Primer prototipo web (versión anterior, solo de referencia) |
 
 ## Poner en marcha la demo

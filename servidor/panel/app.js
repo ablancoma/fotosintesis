@@ -121,12 +121,6 @@ function chips(tablets) {
   return `<div class="chips">${tablets.map((t) => `<span class="chip-tablet">${esc(t)}</span>`).join("")}</div>`;
 }
 
-function etiquetaFuente(i) {
-  if (i.tipo !== "carga") return "";
-  const txt = { sol: "☀️ Sol", bateria: "🔋 Batería escuela", mixta: "☀️ + 🔋" }[i.fuente_tipo] || "";
-  return `<span class="fuente ${i.fuente_tipo}">${txt}</span>`;
-}
-
 function pintarSiguiente(i) {
   const caja = $("#siguiente");
   if (!i) {
@@ -147,7 +141,6 @@ function pintarSiguiente(i) {
     ${chips(i.tablets)}
     <div class="pie">
       <button class="boton" data-hecha="${esc(i.id)}">Hecho</button>
-      ${etiquetaFuente(i)}
     </div>`;
 }
 
@@ -157,7 +150,6 @@ function filaInstruccion(i, esSiguiente) {
     <button class="check" data-${i.hecha ? "deshacer" : "hecha"}="${esc(i.id)}" aria-label="${i.hecha ? "Marcar como pendiente" : "Marcar como hecha"}">${i.hecha ? "✓" : ""}</button>
     <span class="h">${esc(i.hora)}</span>
     <div class="cuerpo"><strong>${esc(i.titulo)}</strong><small>${esc(i.detalle)}</small>${i.tablets.length ? chips(i.tablets) : ""}</div>
-    ${etiquetaFuente(i)}
   </li>`;
 }
 

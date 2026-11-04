@@ -1,52 +1,38 @@
 /* =====================================================================
    Fotosíntesis · app de escritorio del profesor
-   Lenguaje visual de iOS/macOS: fondo gris de sistema, listas agrupadas,
-   tipografía del sistema y colores de sistema. Modo claro y oscuro.
+   Estética de la marca: verde noche, sol y hoja. Fuente Lexend (incluida
+   en la app, funciona sin internet). Un solo tema oscuro.
    ===================================================================== */
-:root {
-  --fondo: #f2f2f7;
-  --superficie: #ffffff;
-  --superficie-2: #f9f9fb;
-  --lateral: rgba(236, 236, 241, 0.82);
-  --texto: #1c1c1e;
-  --texto-2: #6e6e73;
-  --texto-3: #aeaeb2;
-  --separador: rgba(60, 60, 67, 0.14);
-  --verde: #34c759;
-  --verde-hoja: #248a3d;
-  --naranja: #ff9500;
-  --rojo: #ff3b30;
-  --azul: #007aff;
-  --sol: #ffb800;
-  --sol-suave: rgba(255, 184, 0, 0.16);
-  --relleno-control: rgba(118, 118, 128, 0.12);
-  --seg-activo: #ffffff;
-  --sombra-hero: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(0, 0, 0, 0.06);
-  --radio: 12px;
-  color-scheme: light dark;
-}
+@font-face { font-family: "Lexend"; font-weight: 300; font-display: swap; src: url("fuentes/lexend-300.woff2") format("woff2"); }
+@font-face { font-family: "Lexend"; font-weight: 400; font-display: swap; src: url("fuentes/lexend-400.woff2") format("woff2"); }
+@font-face { font-family: "Lexend"; font-weight: 500; font-display: swap; src: url("fuentes/lexend-500.woff2") format("woff2"); }
+@font-face { font-family: "Lexend"; font-weight: 600; font-display: swap; src: url("fuentes/lexend-600.woff2") format("woff2"); }
+@font-face { font-family: "Lexend"; font-weight: 700; font-display: swap; src: url("fuentes/lexend-700.woff2") format("woff2"); }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --fondo: #000000;
-    --superficie: #1c1c1e;
-    --superficie-2: #2c2c2e;
-    --lateral: rgba(28, 28, 30, 0.86);
-    --texto: #f5f5f7;
-    --texto-2: #98989f;
-    --texto-3: #636366;
-    --separador: rgba(84, 84, 88, 0.55);
-    --verde: #30d158;
-    --verde-hoja: #30d158;
-    --naranja: #ff9f0a;
-    --rojo: #ff453a;
-    --azul: #0a84ff;
-    --sol: #ffc72c;
-    --sol-suave: rgba(255, 199, 44, 0.18);
-    --relleno-control: rgba(118, 118, 128, 0.24);
-    --seg-activo: #636366;
-    --sombra-hero: none;
-  }
+:root {
+  --fondo: #04211A;          /* verde noche */
+  --superficie: #0A3328;     /* tarjetas */
+  --superficie-2: #0E3D30;   /* tarjetas al pasar el ratón */
+  --lateral: #03190F;
+  --texto: #F2F0E6;          /* blanco cálido */
+  --texto-2: #A7BCB2;
+  --texto-3: #6F8A7E;
+  --separador: rgba(232, 240, 214, 0.09);
+  --borde: rgba(232, 240, 214, 0.10);
+  --lima: #A6D93B;           /* acento principal */
+  --verde: #A6D93B;
+  --verde-hoja: #A6D93B;
+  --sobre-lima: #04211A;     /* texto encima del lima */
+  --naranja: #FFB547;
+  --rojo: #FF7A66;
+  --azul: #A6D93B;           /* los enlaces van en lima */
+  --sol: #F7C235;
+  --sol-suave: rgba(247, 194, 53, 0.16);
+  --relleno-control: rgba(242, 240, 230, 0.09);
+  --seg-activo: rgba(242, 240, 230, 0.2);
+  --sombra-hero: none;
+  --radio: 20px;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -56,7 +42,7 @@ html, body {
   height: 100%;
   background: var(--fondo);
   color: var(--texto);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, Roboto, sans-serif;
+  font-family: "Lexend", "Segoe UI", system-ui, sans-serif;
   font-size: 15px;
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
@@ -184,7 +170,6 @@ h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 10p
 .fuente { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
 .fuente.sol { background: var(--sol-suave); color: #a86b00; }
 .fuente.bateria, .fuente.mixta { background: color-mix(in srgb, var(--verde) 16%, transparent); color: var(--verde-hoja); }
-@media (prefers-color-scheme: dark) { .fuente.sol { color: var(--sol); } }
 
 .alertas { display: grid; gap: 10px; margin-bottom: 20px; }
 .alertas:empty { display: none; }
@@ -208,7 +193,7 @@ h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 10p
 
 /* Instrucciones */
 .progreso { color: var(--texto-2); font-size: 15px; font-weight: 500; }
-.ins { display: grid; grid-template-columns: 28px 56px 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; }
+.ins { display: grid; grid-template-columns: 28px 56px 1fr; gap: 12px; align-items: center; padding: 12px 16px; }
 .ins .check {
   width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--texto-3); background: transparent;
   display: grid; place-items: center; padding: 0; color: #fff; font-size: 14px;
@@ -470,3 +455,107 @@ body.chat-abierto main { padding-right: 440px; }
 
 .tablet.pendiente { background: transparent; border: 2px dashed var(--separador); }
 .tablet.pendiente .pila { color: var(--texto-3); }
+
+/* =====================================================================
+   Estética de la marca (verde noche + sol)
+   ===================================================================== */
+body {
+  background: radial-gradient(900px 520px at 105% 108%, rgba(247,194,53,0.14), rgba(79,181,72,0.08) 40%, transparent 70%) fixed, var(--fondo);
+}
+:focus-visible { outline: 2px solid var(--sol); outline-offset: 2px; }
+
+.lateral {
+  background: radial-gradient(420px 300px at -20% -10%, rgba(79,181,72,0.22), transparent 70%), var(--lateral);
+  backdrop-filter: none; -webkit-backdrop-filter: none; border-right: 0; padding: 26px 14px; gap: 4px;
+}
+.app { grid-template-columns: 252px 1fr; }
+.marca { gap: 12px; padding: 0 8px 22px; }
+.marca-icono { width: 46px; height: 40px; border-radius: 0; }
+.marca strong { font-size: 19px; font-weight: 500; letter-spacing: -0.01em; }
+.marca small { color: var(--texto-2); }
+.nav { padding: 11px 12px; border-radius: 12px; font-size: 15px; font-weight: 400; gap: 12px; color: #DCE5DD; }
+.nav-icono { width: 20px; height: 20px; flex: none; }
+.nav.activo { background: var(--lima); color: var(--sobre-lima); font-weight: 500; }
+.lateral-pie { flex-wrap: wrap; row-gap: 12px; padding: 10px 8px; }
+.lema { flex-basis: 100%; font-size: 11px; letter-spacing: 0.18em; line-height: 1.6; color: #8BA398; }
+
+h1 { font-size: 40px; font-weight: 500; letter-spacing: -0.025em; }
+h2 { font-weight: 500; }
+.sub { color: var(--texto-2); }
+
+.boton { background: var(--lima); color: var(--sobre-lima); }
+.boton-sec { background: transparent; border: 1px solid rgba(232,240,214,0.18); color: var(--texto); }
+.lista-agrupada, .arco, .cifra-bloque, .tablet, .opcion, .pestana, .estado-prevision, .resumen-instalacion, .chip, .burbuja.ia {
+  border: 1px solid var(--borde);
+}
+.lista-agrupada { border-radius: var(--radio); }
+.lista-agrupada > li + li::before { left: 0; }
+
+/* Siguiente paso: la tarjeta con el sol */
+.siguiente {
+  border-radius: 28px; padding: 30px 32px; border: 1px solid var(--borde);
+  background: radial-gradient(520px 320px at 100% 0%, rgba(247,194,53,0.28), rgba(166,217,59,0.09) 45%, transparent 75%), var(--superficie);
+}
+.siguiente .etiqueta { color: #CFE3A0; font-weight: 400; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; }
+.siguiente .hora { font-size: 84px; font-weight: 300; }
+.siguiente .accion h3 { font-size: 30px; font-weight: 500; }
+.siguiente .accion p { color: #C3D3CA; }
+.siguiente .boton { padding: 14px 30px; font-weight: 600; }
+.siguiente.aviso { border: 1px solid rgba(255,181,71,0.5); }
+.chip-tablet { background: rgba(242,240,230,0.10); font-weight: 500; }
+
+.alerta { background: rgba(255,181,71,0.12); border: 1px solid rgba(255,181,71,0.28); border-radius: 18px; }
+.alerta strong { color: #FFC46B; }
+.alerta div span { color: #F6E3C4; }
+.alerta.suave { background: rgba(166,217,59,0.08); border-color: rgba(166,217,59,0.22); }
+.alerta.suave strong { color: var(--lima); }
+
+.ins { padding: 16px 20px; }
+.ins .check { width: 26px; height: 26px; border-color: rgba(242,240,230,0.35); color: var(--sobre-lima); }
+.ins.hecha .check { background: var(--lima); border-color: var(--lima); }
+.ins .h { font-weight: 500; color: #DCE5DD; }
+.ins.siguiente-marca .h { color: var(--lima); }
+.ins .cuerpo strong { font-weight: 500; }
+.ins.aviso { background: rgba(255,181,71,0.08); }
+.ins.aviso .check { background: var(--naranja); }
+
+.pestana { border-radius: 14px; padding: 9px 16px; background: transparent; }
+.pestana.activa { background: var(--texto); color: var(--sobre-lima); border-color: var(--texto); }
+.pestana.activa small { color: rgba(4,33,26,0.75); }
+
+.cifra-bloque { padding: 20px 22px; }
+.cifra-bloque b { font-size: 40px; font-weight: 300; letter-spacing: -0.03em; }
+.tablet { padding: 16px 18px; gap: 10px; }
+.tablet header { font-weight: 600; }
+.pila { font-size: 26px; font-weight: 400; }
+.pila-icono { border-color: rgba(242,240,230,0.45); }
+.pila-icono::after { background: rgba(242,240,230,0.45); }
+.tablet.pendiente { border: 1.5px dashed rgba(232,240,214,0.25); background: transparent; }
+
+.prevision-estado {
+  border-radius: 28px; border: 1px solid var(--borde);
+  background: radial-gradient(420px 260px at 0% 0%, rgba(247,194,53,0.20), transparent 70%), var(--superficie);
+}
+.prevision-estado .etiqueta { color: #CFE3A0; font-weight: 400; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; }
+.prevision-estado .grande { font-weight: 400; }
+.dia-barra i { background: linear-gradient(90deg, var(--lima), var(--sol)); }
+.dia.elegido { background: rgba(166,217,59,0.10); }
+.arco { border-radius: 28px; }
+.arco .clase-banda { fill: rgba(242,240,230,0.07); }
+
+.resumen-cifra { color: var(--lima); font-weight: 300; }
+.opcion.elegida { border-color: var(--lima); background: rgba(166,217,59,0.08); }
+.opcion.elegida::after { background: var(--lima); color: var(--sobre-lima); }
+.interruptor::after { background: var(--texto); }
+.campo option { background: var(--superficie); color: var(--texto); }
+
+.fab {
+  background: linear-gradient(135deg, var(--sol), var(--lima)); color: var(--sobre-lima);
+  padding: 14px 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+.fab svg { flex: none; }
+.burbuja.yo { background: var(--lima); color: var(--sobre-lima); }
+.panel-chat { background: #062A21; border-left: 1px solid var(--borde); }
+.escribir input { background: var(--superficie); border-color: var(--borde); }
+.hoja { background: #062A21; border: 1px solid var(--borde); }
+.aviso-flotante { background: var(--texto); color: var(--sobre-lima); }

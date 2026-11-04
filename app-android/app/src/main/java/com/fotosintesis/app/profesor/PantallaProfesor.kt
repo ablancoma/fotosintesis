@@ -48,7 +48,6 @@ import com.fotosintesis.app.data.Plan
 import com.fotosintesis.app.data.Preferencias
 import com.fotosintesis.app.ui.BotonPildora
 import com.fotosintesis.app.ui.Colores
-import com.fotosintesis.app.ui.EtiquetaFuente
 import com.fotosintesis.app.ui.FichasTablets
 import com.fotosintesis.app.ui.Grupo
 import com.fotosintesis.app.ui.Separador
@@ -300,8 +299,6 @@ private fun TarjetaSiguiente(ins: Instruccion?, alHecho: (Instruccion) -> Unit) 
             Spacer(Modifier.height(16.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BotonPildora("Hecho", Modifier.width(140.dp)) { alHecho(ins) }
-                Spacer(Modifier.width(12.dp))
-                EtiquetaFuente(ins.fuenteTipo)
             }
         }
     }
@@ -319,7 +316,7 @@ private fun FilaInstruccion(ins: Instruccion, alPulsar: () -> Unit) {
                 .background(if (ins.hecha) Colores.Verde else Color.Transparent)
                 .border(2.dp, if (ins.hecha) Colores.Verde else Colores.Texto3, CircleShape),
             contentAlignment = Alignment.Center
-        ) { if (ins.hecha) Text("✓", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold) }
+        ) { if (ins.hecha) Text("✓", color = Colores.SobreLima, fontSize = 14.sp, fontWeight = FontWeight.Bold) }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.width(64.dp)) {
             if (ins.diaTexto.isNotEmpty()) Text(ins.diaTexto, fontSize = 11.sp, color = Colores.Texto3, maxLines = 1)

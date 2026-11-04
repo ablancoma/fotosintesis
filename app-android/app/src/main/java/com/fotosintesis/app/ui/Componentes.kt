@@ -62,7 +62,7 @@ fun BotonPildora(texto: String, modifier: Modifier = Modifier, habilitado: Boole
         enabled = habilitado,
         modifier = modifier.height(50.dp),
         shape = RoundedCornerShape(50),
-        colors = ButtonDefaults.buttonColors(containerColor = color, contentColor = Color.White)
+        colors = ButtonDefaults.buttonColors(containerColor = color, contentColor = Colores.SobreLima)
     ) { Text(texto, fontSize = 17.sp, fontWeight = FontWeight.SemiBold) }
 }
 

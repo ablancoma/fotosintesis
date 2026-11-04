@@ -1,28 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Icono de Fotosíntesis: una hoja que se carga como una batería (ver /marca) -->
+<!-- Icono de Fotosíntesis: el sol detrás de una hoja, sobre verde noche (ver /marca) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="128"
-    android:viewportHeight="128">
-    <path android:fillColor="#13311F" android:pathData="M28,0h72a28,28 0,0 1,28 28v72a28,28 0,0 1,-28 28h-72a28,28 0,0 1,-28 -28v-72a28,28 0,0 1,28 -28z" />
-    <group android:translateX="4.48" android:translateY="26.8" android:scaleX="0.93" android:scaleY="0.93">
-        <!-- carga (72 %) dentro de la hoja -->
-        <group>
-            <clip-path android:pathData="M16,40 C30,12 74,6 106,38 C76,72 30,68 16,40 Z" />
-            <path android:fillColor="#3CC866" android:pathData="M10,0 h68 v80 h-68 z" />
-        </group>
-        <!-- nervios: oscuros en la parte vacía, blancos donde llega la carga -->
-        <path android:strokeColor="#2E6B45" android:strokeWidth="3.2" android:strokeLineCap="round"
-            android:pathData="M26,40 H94 M44,40 Q50,31 57,27 M44,40 Q50,49 57,53 M64,40 Q70,33 77,30 M64,40 Q70,47 77,50" />
-        <group>
-            <clip-path android:pathData="M10,0 h68 v80 h-68 z" />
-            <path android:strokeColor="#FFFFFF" android:strokeWidth="3.2" android:strokeLineCap="round"
-                android:pathData="M26,40 H94 M44,40 Q50,31 57,27 M44,40 Q50,49 57,53 M64,40 Q70,33 77,30 M64,40 Q70,47 77,50" />
-        </group>
-        <path android:strokeColor="#4CD975" android:strokeWidth="5" android:strokeLineJoin="round"
-            android:pathData="M16,40 C30,12 74,6 106,38 C76,72 30,68 16,40 Z" />
-        <path android:strokeColor="#4CD975" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M5,40 H16" />
-        <path android:fillColor="#FFB800" android:pathData="M113,30 h4 a5,5 0,0 1,5 5 v10 a5,5 0,0 1,-5 5 h-4 a5,5 0,0 1,-5 -5 v-10 a5,5 0,0 1,5 -5 z" />
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path android:fillColor="#04211A" android:pathData="M14,0h36a14,14 0,0 1,14 14v36a14,14 0,0 1,-14 14h-36a14,14 0,0 1,-14 -14v-36a14,14 0,0 1,14 -14z" />
+    <group android:translateX="9" android:translateY="11" android:scaleX="0.72" android:scaleY="0.72">
+        <!-- sol -->
+        <path android:fillColor="#F7C235" android:pathData="M20,21 a16,16 0,1 0,32 0 a16,16 0,1 0,-32 0 z" />
+        <!-- hoja: mitad oscura y mitad clara -->
+        <path android:fillColor="#4FB548" android:pathData="M5,53 C9,31 30,19 61,17 C57,39 36,53 5,53 Z" />
+        <path android:fillColor="#B5E04A" android:pathData="M5,53 C27,42 44,30 61,17 C57,39 36,53 5,53 Z" />
     </group>
 </vector>
