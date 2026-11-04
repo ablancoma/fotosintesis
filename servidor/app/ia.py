@@ -24,24 +24,81 @@ def _cargar_env():
 
 
 _cargar_env()
-MODELO = os.environ.get("GEMINI_MODELO", "gemini-2.5-flash")
+
+# Modelos que se prueban en orden. Google va cambiando los modelos: si uno ya no existe o la cuenta
+# no tiene acceso, se pasa al siguiente. Con GEMINI_MODELO en .env se puede forzar uno primero.
+MODELOS_POR_DEFECTO = ["gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-2.5-flash"]
+_modelo_que_funciona = None
 
 ROL = ("Eres el asistente de Fotosíntesis, una app que ayuda a profesores de escuelas rurales con energía solar "
        "limitada a organizar la carga de las tablets. Hablas en español, con frases cortas, cálidas y sin tecnicismos. "
        "Nunca inventes datos: usa solo los que te doy.")
 
 
+class ErrorIA(RuntimeError):
+    """Error con un mensaje que entiende el profesor (se muestra debajo de la respuesta)."""
+
+
+def _clave() -> str:
+    clave = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not clave or "PON_AQUI" in clave:
+        raise ErrorIA("Falta la clave de Gemini en servidor/.env")
+    return clave
+
+
+def _modelos() -> list[str]:
+    elegido = os.environ.get("GEMINI_MODELO", "").strip()
+    lista = ([_modelo_que_funciona] if _modelo_que_funciona else []) + ([elegido] if elegido else []) + MODELOS_POR_DEFECTO
+    return list(dict.fromkeys(lista))      # sin repetidos, en orden
+
+
 def _gemini(prompt: str) -> str:
-    clave = os.environ.get("GEMINI_API_KEY", "")
-    if not clave:
-        raise RuntimeError("Falta GEMINI_API_KEY en servidor/.env")
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODELO}:generateContent"
-    r = httpx.post(url, params={"key": clave}, timeout=30, json={
-        "system_instruction": {"parts": [{"text": ROL}]},
-        "contents": [{"parts": [{"text": prompt}]}],
-    })
-    r.raise_for_status()
-    return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+    global _modelo_que_funciona
+    clave = _clave()
+    ultimo = "Gemini no responde"
+    for modelo in _modelos():
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent"
+        try:
+            r = httpx.post(url, headers={"x-goog-api-key": clave}, timeout=40, json={
+                "system_instruction": {"parts": [{"text": ROL}]},
+                "contents": [{"parts": [{"text": prompt}]}],
+            })
+        except httpx.TimeoutException:
+            raise ErrorIA("Gemini ha tardado demasiado en responder")
+        except httpx.HTTPError:
+            raise ErrorIA("Sin conexión a internet")
+        if r.status_code == 200:
+            partes = r.json().get("candidates", [{}])[0].get("content", {}).get("parts", [])
+            texto = "".join(p.get("text", "") for p in partes if not p.get("thought")).strip()
+            if not texto:
+                raise ErrorIA("Gemini ha devuelto una respuesta vacía")
+            _modelo_que_funciona = modelo
+            return texto
+        detalle = r.text
+        if "API_KEY_INVALID" in detalle or "API key not valid" in detalle:
+            raise ErrorIA("La clave de Gemini no es válida: revisa servidor/.env")
+        if r.status_code == 429:
+            raise ErrorIA("Se ha alcanzado el límite gratuito de Gemini: espera un minuto")
+        try:
+            mensaje = r.json().get("error", {}).get("message", "")[:220]
+        except ValueError:
+            mensaje = detalle[:220]
+        if r.status_code == 404 or (r.status_code == 400 and "not found" in mensaje.lower()):
+            ultimo = f"Ningún modelo de Gemini disponible (último: {modelo})"
+            continue                                 # este modelo ya no existe: probar el siguiente
+        if r.status_code == 403:
+            raise ErrorIA(f"Google no da permiso a esta clave (error 403): {mensaje}")
+        raise ErrorIA(f"Gemini ha respondido con un error {r.status_code}: {mensaje}")
+    raise ErrorIA(ultimo)
+
+
+def estado() -> dict:
+    """Prueba rápida de Gemini (la usa probar_gemini.py y /api/asistente/estado)."""
+    try:
+        texto = _gemini("Responde solo con: Gemini funcionando.")
+        return {"ok": True, "modelo": _modelo_que_funciona, "respuesta": texto}
+    except ErrorIA as e:
+        return {"ok": False, "motivo": str(e)}
 
 
 def _datos_para_ia(plan: dict, prevision: dict, consumo: dict) -> str:
@@ -65,7 +122,7 @@ def resumen_del_plan(plan: dict, prevision: dict, consumo: dict) -> dict:
     try:
         return {"texto": _gemini(prompt), "origen": "gemini"}
     except Exception as e:
-        return {"texto": _resumen_local(plan, prevision, consumo), "origen": "local", "motivo": str(e)[:120]}
+        return {"texto": _resumen_local(plan, prevision, consumo), "origen": "local", "motivo": str(e)[:160]}
 
 
 def responder(pregunta: str, plan: dict, prevision: dict, consumo: dict) -> dict:
@@ -75,7 +132,7 @@ def responder(pregunta: str, plan: dict, prevision: dict, consumo: dict) -> dict
         return {"texto": _gemini(prompt), "origen": "gemini"}
     except Exception as e:
         return {"texto": "Ahora mismo no puedo conectar con la IA. " + _resumen_local(plan, prevision, consumo)
-                .split("\n")[0], "origen": "local", "motivo": str(e)[:120]}
+                .split("\n")[0], "origen": "local", "motivo": str(e)[:160]}
 
 
 def _resumen_local(plan: dict, prevision: dict, consumo: dict) -> str:

@@ -432,6 +432,12 @@ def resumen_asistente(nublado: bool = False):
     return ia.resumen_del_plan(plan, plan["prevision"], plan["consumo"])
 
 
+@app.get("/api/asistente/estado", tags=["Asistente"])
+def estado_asistente():
+    """Comprueba si Gemini responde (clave, modelo e internet)."""
+    return ia.estado()
+
+
 @app.post("/api/asistente/preguntar", tags=["Asistente"])
 def preguntar(p: Pregunta, nublado: bool = False):
     with conectar() as con:

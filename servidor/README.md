@@ -84,3 +84,10 @@ Para la demo conviene borrar `fotosintesis.db` antes: al arrancar se crean solos
 | GET | `/api/consumo` | Consumo estimado vs. aprendido por actividad |
 | GET | `/api/asistente/resumen` | Resumen del plan (Gemini) |
 | POST | `/api/asistente/preguntar` | Preguntar al asistente |
+
+## Comprobar Gemini
+```bash
+python probar_gemini.py
+```
+Dice si la clave de `.env` funciona y con qué modelo. La app prueba sola los modelos actuales de Gemini
+(si Google retira uno, pasa al siguiente). Si Gemini falla, el asistente da un resumen automático y explica el motivo.
