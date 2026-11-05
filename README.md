@@ -18,7 +18,7 @@
 
 | Carpeta | Qué es |
 |---|---|
-| [`servidor/`](servidor/README.md) | **Servidor** en Python + **app de escritorio del profesor** (`servidor/panel/`): API, planificador, aprendizaje del consumo, previsión, Gemini y simulador |
+| [`servidor/`](servidor/README.md) | **Servidor** en Python + **app de escritorio del profesor** (`servidor/panel/`): API, planificador, aprendizaje del consumo, previsión, IA local (Gemma con Ollama) y simulador |
 | [`app-android/`](app-android/README.md) | **App Android** en Kotlin (modos tablet y profesor) |
 | [`GUIA_DEFENSA.md`](GUIA_DEFENSA.md) | Cómo explicar y defender cada decisión ante el jurado |
 | [`marca/`](marca/README.md) | Logo (sol y hoja), icono, colores, fuente y lema |
@@ -31,7 +31,12 @@
 cd servidor
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt -r requirements-escritorio.txt
-cp env.ejemplo .env        # pon la clave de Gemini (opcional)
+cp env.ejemplo .env
+```
+
+**IA local** (una vez): descarga [Ollama](https://ollama.com), ábrelo y ejecuta:
+```bash
+ollama pull gemma4:e2b     # unos minutos; después funciona sin internet
 ```
 
 **2. App de escritorio** (arranca también el servidor):
@@ -56,4 +61,4 @@ cd servidor && source .venv/bin/activate && python simulador.py
 3. **Escritorio → Horario**: añade una clase *solo para el viernes* (o para todos los días) → el plan se recalcula.
 4. **Ajustes**: responde «No tenemos» batería → aparecen más instrucciones y avisos. Vuelve a «Sí» → se salva.
 5. **Emulador** (*Extended controls → Battery*): baja la batería al 15 % → aparece en **Tablets**.
-6. **Botón 💬 Asistente** (abajo a la derecha): *«¿Qué día hay menos sol?»* → responde Gemini.
+6. **Botón 💬 Asistente** (abajo a la derecha): *«¿Qué día hay menos sol?»* → responde la IA local (Gemma), sin internet.

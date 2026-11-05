@@ -19,7 +19,7 @@
                                       (la pantalla principal)            desde el aula
 ```
 **No necesita internet** para funcionar. Internet solo se usa a ratos: para la previsión (que trae el
-móvil del profesor) y para Gemini.
+móvil del profesor). La IA va en el propio ordenador.
 
 ---
 
@@ -48,7 +48,7 @@ móvil del profesor) y para Gemini.
 - Alternativa que conocemos: **MQTT** (típico en IoT). La dejamos como mejora para escuelas con muchas tablets.
 
 ### Servidor — **Python + FastAPI**
-- **Python:** el lenguaje de referencia en datos e inteligencia artificial → encaja con la IA local futura.
+- **Python:** el lenguaje de referencia en datos e inteligencia artificial → encaja con la IA local.
 - **FastAPI:** framework moderno y rápido; genera solo la documentación de la API (`/docs`), útil para que
   otros equipos se integren.
 - Corre en cualquier ordenador Ubuntu, y en el futuro en una **Raspberry Pi** (5 W, unos 60 €).
@@ -76,11 +76,16 @@ móvil del profesor) y para Gemini.
   datos móviles y se la pasa al servidor al llegar a la escuela. Se guardan 7 días: si un día no hay conexión,
   se usa lo guardado.
 
-### Asistente — **Gemini** hoy, **IA local** mañana
-- **Hoy (demo):** Gemini (Google) resume el plan en lenguaje sencillo y responde preguntas del profesor.
-- **Futuro:** un modelo pequeño como **Gemma** ejecutado con **Ollama** en el propio servidor, **sin internet**.
-  O **Gemini Nano**, que va dentro de los móviles Android recientes.
-- Si Gemini no responde, la app muestra igualmente un resumen generado con los datos: nunca se queda en blanco.
+### Asistente — **IA local: Gemma con Ollama**, sin internet
+- **Gemma 4** (modelo abierto de Google, versión pequeña E2B) se ejecuta con **Ollama** en el propio ordenador de la
+  escuela. Resume el plan en lenguaje sencillo y responde las preguntas del profesor **sin conexión y gratis**.
+- **Por qué local y no en la nube:** el reto es *aprender sin conexión*; una IA en la nube falla justo donde más se
+  necesita. Además los datos no salen de la escuela y no hay coste por uso.
+- **Gemini** (en la nube) queda como opción si hay internet y clave. En el futuro, **Gemini Nano** dentro de los
+  móviles Android recientes.
+- Si ninguna IA responde, la app muestra igualmente un resumen generado con los datos: nunca se queda en blanco.
+- **Pregunta probable:** *¿Una IA tan pequeña es fiable?* → No calcula nada: el plan lo hace el algoritmo; la IA solo lo
+  explica con palabras sencillas y recibe los datos ya calculados, así que no tiene que inventar.
 
 ---
 
@@ -125,7 +130,7 @@ El profesor las marca como hechas. No hace falta hardware extra (los enchufes in
 | Pregunta | Respuesta |
 |---|---|
 | ¿Y si no hay wifi en la escuela? | Basta un router barato sin internet. Las tablets guardan las lecturas y las envían cuando hay red. |
-| ¿Y si no hay internet nunca? | Todo funciona: plan, instrucciones, aprendizaje. Solo se pierde Gemini (y con IA local, tampoco). La previsión la trae el profesor con su móvil. |
+| ¿Y si no hay internet nunca? | Todo funciona: plan, instrucciones, aprendizaje. También el asistente: la IA va en el propio ordenador. La previsión la trae el profesor con su móvil. |
 | ¿El servidor no gasta energía? | Muy poca comparada con las tablets, así que no la contamos. En el futuro puede ser una Raspberry Pi (5 W). |
 | ¿Privacidad de los alumnos? | No guardamos ningún dato personal: solo un identificador por tablet y su batería. |
 | ¿Y si el profesor tiene iPhone? | Hoy es Android. La app se puede llevar a iPhone con Compose Multiplatform (mismo lenguaje). |
@@ -134,7 +139,7 @@ El profesor las marca como hechas. No hace falta hardware extra (los enchufes in
 | ¿Cómo escala? | Un servidor por escuela. En el futuro, los servidores pueden enviar datos agregados a ProFuturo para comparar escuelas. |
 
 ## Siguientes pasos (para el cierre del pitch)
-1. IA local (Gemma + Ollama) en una Raspberry Pi → **cero dependencia de internet**.
+1. Llevar el servidor con la IA local a una Raspberry Pi o un mini PC de bajo consumo.
 2. Enchufes inteligentes → la app enciende y apaga la carga sola.
 3. Optimización con programación lineal.
 4. Panel para ProFuturo con datos de todas las escuelas.

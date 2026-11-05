@@ -1,7 +1,7 @@
 # 🖥️ Servidor y app de escritorio de Fotosíntesis (Python + FastAPI)
 
 Recibe la batería de las tablets, guarda el horario y la previsión, calcula el plan de carga,
-genera las instrucciones para el profesor y habla con Gemini. Además sirve la **app de escritorio
+genera las instrucciones para el profesor y habla con la IA (Gemma local con Ollama, o Gemini). Además sirve la **app de escritorio
 del profesor** (carpeta `panel/`), que es la pantalla principal del sistema.
 
 ## App de escritorio (lo normal)
@@ -30,7 +30,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 - Abre **http://localhost:8000/docs** para ver y probar toda la API desde el navegador.
 - La IP que hay que escribir en las tablets sale en **http://localhost:8000/api/info**.
 
-## Gemini (asistente de IA)
+## Gemini (opcional, en la nube)
 
 ```bash
 cp env.ejemplo .env      # y pon tu clave de https://aistudio.google.com/apikey
@@ -60,7 +60,7 @@ Para la demo conviene borrar `fotosintesis.db` antes: al arrancar se crean solos
 | `app/planificador.py` | Simula mañana en franjas de 15 min y genera las instrucciones de carga |
 | `app/consumo.py` | Mide el consumo real de cada clase y aprende por tipo de actividad |
 | `app/meteo.py` | Previsión de Open-Meteo (descargada por el servidor o traída por el profesor) |
-| `app/ia.py` | Asistente con Gemini (y respuesta de respaldo si no hay conexión) |
+| `app/ia.py` | Asistente: IA local (Ollama), Gemini y respuesta de respaldo |
 | `app/db.py` | Base de datos SQLite (un archivo: `fotosintesis.db`) |
 | `app/datos_demo.py` | Datos iniciales estimados |
 | `simulador.py` | Finge ser 25 tablets para la demo |
@@ -82,12 +82,17 @@ Para la demo conviene borrar `fotosintesis.db` antes: al arrancar se crean solos
 | POST | `/api/plan/recalcular` | Recalcular con las baterías actuales |
 | POST/DELETE | `/api/instrucciones/{id}/hecha` | Marcar / desmarcar una instrucción |
 | GET | `/api/consumo` | Consumo estimado vs. aprendido por actividad |
-| GET | `/api/asistente/resumen` | Resumen del plan (Gemini) |
+| GET | `/api/asistente/resumen` | Resumen del plan (IA) |
 | POST | `/api/asistente/preguntar` | Preguntar al asistente |
 
-## Comprobar Gemini
-```bash
-python probar_gemini.py
-```
-Dice si la clave de `.env` funciona y con qué modelo. La app prueba sola los modelos actuales de Gemini
-(si Google retira uno, pasa al siguiente). Si Gemini falla, el asistente da un resumen automático y explica el motivo.
+## IA local (recomendada)
+1. Descarga **Ollama** de https://ollama.com e instálalo (se queda abierto en la barra de menús).
+2. Descarga el modelo (una vez, unos minutos):
+   ```bash
+   ollama pull gemma4:e2b
+   ```
+3. Comprueba:
+   ```bash
+   python probar_ia.py
+   ```
+La app usa primero la IA local, después Gemini si hay clave, y si no, un resumen automático.

@@ -559,3 +559,11 @@ h2 { font-weight: 500; }
 .escribir input { background: var(--superficie); border-color: var(--borde); }
 .hoja { background: #062A21; border: 1px solid var(--borde); }
 .aviso-flotante { background: var(--texto); color: var(--sobre-lima); }
+
+/* El siguiente paso se reorganiza cuando hay poco ancho (por ejemplo, con el asistente abierto) */
+.siguiente { display: flex; flex-wrap: wrap; align-items: center; column-gap: 28px; row-gap: 16px; }
+.siguiente .etiqueta, .siguiente .chips, .siguiente .pie { flex-basis: 100%; }
+.siguiente .accion { flex: 1 1 260px; min-width: 0; }
+.siguiente.vacio { flex-direction: column; }
+.hoy-rejilla { grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); }
+@media (max-width: 1250px) { body.chat-abierto .hoy-rejilla { grid-template-columns: 1fr; } }

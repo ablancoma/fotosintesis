@@ -463,14 +463,15 @@ $("#fab-asistente").addEventListener("click", () => abrirChat($("#panel-chat").h
 $("#cerrar-chat").addEventListener("click", () => abrirChat(false));
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#panel-chat").hidden) abrirChat(false); });
 
-function burbuja(texto, quien, origen, motivo) {
+function burbuja(texto, quien, origen, motivo, modelo) {
   const div = document.createElement("div");
   div.className = "burbuja " + quien;
   div.textContent = texto;
   if (origen) {
     const s = document.createElement("span");
     s.className = "origen";
-    s.textContent = origen === "gemini" ? "Gemini" : "Resumen automático · " + (motivo || "Gemini no disponible");
+    s.textContent = origen === "ollama" ? "IA local · " + (modelo || "Gemma") + " · sin internet"
+      : origen === "gemini" ? "Gemini" : "Resumen automático · " + (motivo || "IA no disponible");
     div.appendChild(s);
   }
   $("#chat").appendChild(div);
@@ -485,7 +486,7 @@ async function iniciarChat() {
   try {
     const r = await api("/api/asistente/resumen");
     espera.remove();
-    burbuja(r.texto, "ia", r.origen, r.motivo);
+    burbuja(r.texto, "ia", r.origen, r.motivo, r.modelo);
   } catch (e) { espera.textContent = "No hay conexión con el servidor."; }
 }
 
@@ -497,7 +498,7 @@ async function preguntar(texto) {
   try {
     const r = await api("/api/asistente/preguntar", { method: "POST", body: { pregunta: texto } });
     espera.remove();
-    burbuja(r.texto, "ia", r.origen, r.motivo);
+    burbuja(r.texto, "ia", r.origen, r.motivo, r.modelo);
   } catch (e) { espera.textContent = "No hay conexión con el servidor."; }
 }
 $("#form-chat").addEventListener("submit", (e) => { e.preventDefault(); preguntar($("#entrada-chat").value); });
